@@ -1,0 +1,259 @@
+# Phantom Bot Configuration
+# ========================
+
+app:
+  name: "Phantom Bot"
+  version: "1.0.0"
+  debug: false
+  log_level: "INFO"
+
+# License & Authentication
+license:
+  key: ""  # Your license key
+
+# Captcha Solving
+captcha:
+  primary_provider: "2captcha"  # 2captcha, anticaptcha, capmonster
+  fallback_provider: "anticaptcha"
+  providers:
+    2captcha:
+      api_key: ""
+    anticaptcha:
+      api_key: ""
+    capmonster:
+      api_key: ""
+  ai_solver:
+    enabled: true
+    model: "gpt-4-vision"  # or local model
+    openai_api_key: ""
+  harvester:
+    max_harvesters: 5
+    auto_refresh: true
+    refresh_interval: 1800  # seconds
+
+# Proxy Configuration
+proxy:
+  test_on_start: true
+  test_url: "https://www.google.com"
+  timeout: 10
+  rotation_strategy: "smart"  # round_robin, random, sticky, smart
+  health_check_interval: 300
+  ban_threshold: 3  # failures before marking bad
+  auto_remove_bad: false
+  sticky_duration: 300  # seconds for sticky mode
+
+# Performance Tuning
+performance:
+  max_concurrent_tasks: 50
+  max_concurrent_monitors: 25
+  request_timeout: 30
+  checkout_timeout: 60
+  retry_attempts: 3
+  retry_delay: 1.0
+
+# Delay Configuration (milliseconds)
+delays:
+  monitor:
+    default: 3000
+    aggressive: 1500
+    safe: 5000
+  retry:
+    default: 2000
+    aggressive: 1000
+    safe: 3500
+  checkout:
+    default: 0
+    humanized: true  # Add random human-like delays
+
+# Anti-Bot Evasion
+evasion:
+  fingerprint:
+    randomize: true
+    canvas_noise: true
+    webgl_noise: true
+    audio_noise: true
+    timezone_spoof: false
+  tls:
+    rotate_ja3: true
+    use_curl_impersonate: true
+    impersonate_browser: "chrome110"  # chrome110, chrome116, safari15, firefox
+  humanizer:
+    enabled: true
+    mouse_movements: true
+    scroll_patterns: true
+    typing_delays: true
+    random_pauses: true
+  headers:
+    randomize_order: true
+    realistic_accept: true
+
+# Market Intelligence
+intelligence:
+  enabled: true
+  stockx:
+    enabled: true
+    api_key: ""  # Optional - works without
+  goat:
+    enabled: true
+  ebay:
+    enabled: true
+  # Restock prediction ML model
+  restock_prediction:
+    enabled: true
+    confidence_threshold: 0.7
+    training_data_days: 90
+  # Auto research
+  research:
+    auto_keywords: true
+    trending_products: true
+    profit_threshold: 20  # minimum profit % to suggest
+
+# Release Calendar
+calendar:
+  sources:
+    - "nike_snkrs"
+    - "adidas_confirmed"
+    - "sneakernews"
+    - "sole_collector"
+  auto_create_tasks: false  # Auto-create tasks for upcoming releases
+  reminder_hours: 24
+
+# Notifications
+notifications:
+  discord:
+    enabled: true
+    webhook_url: ""
+    success_webhook: ""  # Optional separate webhook
+    failure_webhook: ""
+    restock_webhook: ""
+    mention_role: ""  # Role ID to mention
+    embed_color: 0x7289DA
+  desktop:
+    enabled: true
+    sound: true
+  email:
+    enabled: false
+    smtp_server: ""
+    smtp_port: 587
+    username: ""
+    password: ""
+    recipient: ""
+
+# Database
+database:
+  type: "sqlite"  # sqlite, postgresql
+  sqlite:
+    path: "data/phantom.db"
+  postgresql:
+    host: "localhost"
+    port: 5432
+    database: "phantom"
+    username: ""
+    password: ""
+
+# Web UI
+web:
+  enabled: true
+  host: "127.0.0.1"
+  port: 8080
+  secret_key: ""  # Auto-generated if empty
+  session_timeout: 3600
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://127.0.0.1:3000"
+
+# Supported Sites Configuration
+sites:
+  shopify:
+    enabled: true
+    modes:
+      - "normal"
+      - "fast"
+      - "preload"
+      - "safe"
+    stores:
+      # Tier 1 - High Priority
+      - name: "DTLR"
+        url: "https://www.dtlr.com"
+        checkout_url: "https://www.dtlr.com/checkout"
+        queue_bypass: true
+      - name: "Shoe Palace"
+        url: "https://www.shoepalace.com"
+        checkout_url: "https://www.shoepalace.com/checkout"
+      - name: "Jimmy Jazz"
+        url: "https://www.jimmyjazz.com"
+        checkout_url: "https://www.jimmyjazz.com/checkout"
+      - name: "Hibbett"
+        url: "https://www.hibbett.com"
+        checkout_url: "https://www.hibbett.com/checkout"
+      - name: "Social Status"
+        url: "https://www.socialstatuspgh.com"
+        checkout_url: "https://www.socialstatuspgh.com/checkout"
+      - name: "Undefeated"
+        url: "https://undefeated.com"
+        checkout_url: "https://undefeated.com/checkout"
+      - name: "Concepts"
+        url: "https://cncpts.com"
+        checkout_url: "https://cncpts.com/checkout"
+      - name: "Kith"
+        url: "https://kith.com"
+        checkout_url: "https://kith.com/checkout"
+      - name: "Notre"
+        url: "https://www.notre-shop.com"
+        checkout_url: "https://www.notre-shop.com/checkout"
+      - name: "Bodega"
+        url: "https://bdgastore.com"
+        checkout_url: "https://bdgastore.com/checkout"
+      # Add more stores as needed
+
+  footsites:
+    enabled: true
+    stores:
+      - name: "Foot Locker"
+        url: "https://www.footlocker.com"
+      - name: "Champs"
+        url: "https://www.champssports.com"
+      - name: "Eastbay"
+        url: "https://www.eastbay.com"
+      - name: "Finish Line"
+        url: "https://www.finishline.com"
+      - name: "JD Sports"
+        url: "https://www.jdsports.com"
+
+  nike:
+    enabled: true
+    regions:
+      - "US"
+      - "EU"
+    snkrs:
+      enabled: true
+      account_gen: true
+    nike_com:
+      enabled: true
+
+  adidas:
+    enabled: true
+    regions:
+      - "US"
+      - "EU"
+    splash_bypass: true
+    queue_it: true
+
+# Sizes Configuration
+sizes:
+  default:
+    - "8"
+    - "8.5"
+    - "9"
+    - "9.5"
+    - "10"
+    - "10.5"
+    - "11"
+    - "11.5"
+    - "12"
+    - "13"
+    - "14"
+  preferred:
+    - "13"
+    - "14"
+  random_fallback: true  # Try random size if preferred OOS
