@@ -5,6 +5,12 @@ import { Sidebar } from './components/Sidebar'
 import { Dashboard } from './components/Dashboard'
 import { ProductFeed } from './components/ProductFeed'
 import { Monitors } from './components/Monitors'
+import { Tasks } from './components/Tasks'
+import { Profiles } from './components/Profiles'
+import { Proxies } from './components/Proxies'
+import { Analytics } from './components/Analytics'
+import { Intelligence } from './components/Intelligence'
+import { Settings } from './components/Settings'
 
 function App() {
   const { selectedTab, setRunning, setMonitorsRunning, setStats } = useStore()
@@ -45,17 +51,17 @@ function App() {
       case 'monitors':
         return <Monitors />
       case 'tasks':
-        return <ComingSoon title="Tasks" description="Manage checkout tasks" />
+        return <Tasks />
       case 'profiles':
-        return <ComingSoon title="Profiles" description="Payment and shipping profiles" />
+        return <Profiles />
       case 'proxies':
-        return <ComingSoon title="Proxies" description="Proxy management" />
+        return <Proxies />
       case 'analytics':
-        return <ComingSoon title="Analytics" description="Performance analytics" />
+        return <Analytics />
       case 'intelligence':
-        return <ComingSoon title="Intelligence" description="Market research" />
+        return <Intelligence />
       case 'settings':
-        return <ComingSoon title="Settings" description="Bot configuration" />
+        return <Settings />
       default:
         return <Dashboard />
     }
@@ -67,20 +73,6 @@ function App() {
       <main className="flex-1 overflow-y-auto">
         {renderContent()}
       </main>
-    </div>
-  )
-}
-
-function ComingSoon({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center h-full">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-white mb-2">{title}</h1>
-        <p className="text-gray-500">{description}</p>
-        <div className="mt-6 px-4 py-2 bg-purple-500/20 text-purple-400 rounded-lg text-sm">
-          Coming Soon
-        </div>
-      </div>
     </div>
   )
 }

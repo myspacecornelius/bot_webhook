@@ -45,11 +45,11 @@ async def setup_engine():
     config = get_config()
     
     # Set up notifications
-    if config.notifications.discord_webhook:
+    if config.notifications.discord.webhook_url:
         notifier = DiscordNotifier(
-            webhook_url=config.notifications.discord_webhook,
-            success_webhook=config.notifications.success_webhook,
-            failure_webhook=config.notifications.failure_webhook,
+            webhook_url=config.notifications.discord.webhook_url,
+            success_webhook=config.notifications.discord.success_webhook,
+            failure_webhook=config.notifications.discord.failure_webhook,
         )
         engine.set_notifier(notifier)
     
@@ -59,10 +59,12 @@ async def setup_engine():
     
     # Set up captcha solver
     captcha_solver = CaptchaSolver()
-    if config.captcha.two_captcha_key:
-        captcha_solver.configure_2captcha(config.captcha.two_captcha_key)
-    if config.captcha.capmonster_key:
-        captcha_solver.configure_capmonster(config.captcha.capmonster_key)
+    two_captcha_cfg = config.captcha.providers.get("2captcha")
+    capmonster_cfg = config.captcha.providers.get("capmonster")
+    if two_captcha_cfg and two_captcha_cfg.api_key:
+        captcha_solver.configure_2captcha(two_captcha_cfg.api_key)
+    if capmonster_cfg and capmonster_cfg.api_key:
+        captcha_solver.configure_capmonster(capmonster_cfg.api_key)
     engine.set_captcha_solver(captcha_solver)
     
     # Register checkout modules

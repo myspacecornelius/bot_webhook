@@ -1,0 +1,463 @@
+import { useState, useEffect } from 'react'
+import { 
+  ShoppingCart, 
+  Play, 
+  Pause, 
+  Trash2, 
+  Plus,
+  CheckCircle,
+  XCircle,
+  Clock,
+  AlertCircle,
+  MoreVertical,
+  Copy,
+  Edit,
+  PlayCircle,
+  StopCircle
+} from 'lucide-react'
+import { api } from '../api/client'
+import { cn, formatPrice } from '../lib/utils'
+
+interface Task {
+  id: string
+  status: 'idle' | 'running' | 'success' | 'failed' | 'waiting'
+  statusMessage: string
+  siteName: string
+  siteUrl: string
+  productName?: string
+  monitorInput: string
+  size: string
+  mode: string
+  profileId?: string
+  proxyGroupId?: string
+  createdAt: string
+}
+
+const STATUS_CONFIG = {
+  idle: { icon: Clock, color: 'text-gray-400', bg: 'bg-gray-500/20' },
+  running: { icon: PlayCircle, color: 'text-cyan-400', bg: 'bg-cyan-500/20' },
+  waiting: { icon: Clock, color: 'text-yellow-400', bg: 'bg-yellow-500/20' },
+  success: { icon: CheckCircle, color: 'text-green-400', bg: 'bg-green-500/20' },
+  failed: { icon: XCircle, color: 'text-red-400', bg: 'bg-red-500/20' },
+}
+
+function TaskRow({ task, onStart, onStop, onDelete, onDuplicate }: {
+  task: Task
+  onStart: () => void
+  onStop: () => void
+  onDelete: () => void
+  onDuplicate: () => void
+}) {
+  const [showMenu, setShowMenu] = useState(false)
+  const config = STATUS_CONFIG[task.status] || STATUS_CONFIG.idle
+  const StatusIcon = config.icon
+  
+  return (
+    <div className={cn(
+      "group flex items-center gap-4 p-4 rounded-xl border transition-all",
+      task.status === 'running' ? "bg-cyan-500/5 border-cyan-500/30" :
+      task.status === 'success' ? "bg-green-500/5 border-green-500/30" :
+      task.status === 'failed' ? "bg-red-500/5 border-red-500/30" :
+      "bg-[#0f0f18] border-[#1a1a2e] hover:border-purple-500/30"
+    )}>
+      {/* Status */}
+      <div className={cn("p-2 rounded-lg", config.bg)}>
+        <StatusIcon className={cn("w-5 h-5", config.color)} />
+      </div>
+      
+      {/* Site Info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="font-medium text-white">{task.siteName}</span>
+          <span className="px-2 py-0.5 text-xs bg-purple-500/20 text-purple-400 rounded">
+            {task.mode}
+          </span>
+        </div>
+        <p className="text-sm text-gray-400 truncate">{task.monitorInput}</p>
+      </div>
+      
+      {/* Size */}
+      <div className="text-center px-4">
+        <p className="text-lg font-bold text-white">{task.size || 'Any'}</p>
+        <p className="text-xs text-gray-500">Size</p>
+      </div>
+      
+      {/* Status Message */}
+      <div className="w-48">
+        <p className={cn("text-sm truncate", config.color)}>{task.statusMessage || 'Ready'}</p>
+      </div>
+      
+      {/* Actions */}
+      <div className="flex items-center gap-2">
+        {task.status === 'running' ? (
+          <button
+            onClick={onStop}
+            className="p-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
+            title="Stop Task"
+          >
+            <Pause className="w-4 h-4" />
+          </button>
+        ) : (
+          <button
+            onClick={onStart}
+            className="p-2 rounded-lg bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors"
+            title="Start Task"
+          >
+            <Play className="w-4 h-4" />
+          </button>
+        )}
+        
+        <div className="relative">
+          <button
+            onClick={() => setShowMenu(!showMenu)}
+            className="p-2 rounded-lg bg-[#1a1a24] text-gray-400 hover:text-white transition-colors"
+            title="More Options"
+          >
+            <MoreVertical className="w-4 h-4" />
+          </button>
+          
+          {showMenu && (
+            <div className="absolute right-0 top-full mt-1 w-36 py-1 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg shadow-xl z-10">
+              <button
+                onClick={() => { onDuplicate(); setShowMenu(false); }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-purple-500/20 hover:text-white"
+              >
+                <Copy className="w-4 h-4" /> Duplicate
+              </button>
+              <button
+                onClick={() => { onDelete(); setShowMenu(false); }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/20"
+              >
+                <Trash2 className="w-4 h-4" /> Delete
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function CreateTaskModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+  const [formData, setFormData] = useState({
+    siteName: 'DTLR',
+    siteUrl: 'https://www.dtlr.com',
+    monitorInput: '',
+    sizes: '',
+    mode: 'safe',
+    profileId: '',
+    proxyGroupId: '',
+    quantity: 1,
+  })
+  const [loading, setLoading] = useState(false)
+  
+  const sites = [
+    { name: 'DTLR', url: 'https://www.dtlr.com' },
+    { name: 'Shoe Palace', url: 'https://www.shoepalace.com' },
+    { name: 'Jimmy Jazz', url: 'https://www.jimmyjazz.com' },
+    { name: 'Hibbett', url: 'https://www.hibbett.com' },
+    { name: 'Kith', url: 'https://kith.com' },
+    { name: 'Undefeated', url: 'https://undefeated.com' },
+    { name: 'Bodega', url: 'https://bdgastore.com' },
+  ]
+  
+  const handleSubmit = async () => {
+    setLoading(true)
+    try {
+      const sizes = formData.sizes.split(',').map(s => s.trim()).filter(Boolean)
+      
+      for (let i = 0; i < formData.quantity; i++) {
+        await api.createTask({
+          site_name: formData.siteName,
+          site_url: formData.siteUrl,
+          monitor_input: formData.monitorInput,
+          sizes: sizes,
+          mode: formData.mode,
+          profile_id: formData.profileId || null,
+          proxy_group_id: formData.proxyGroupId || null,
+        })
+      }
+      
+      onCreated()
+      onClose()
+    } catch (e) {
+      console.error(e)
+    }
+    setLoading(false)
+  }
+  
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="w-full max-w-lg bg-[#0f0f18] border border-[#1a1a2e] rounded-2xl p-6" onClick={e => e.stopPropagation()}>
+        <h2 className="text-xl font-bold text-white mb-6">Create Task</h2>
+        
+        <div className="space-y-4">
+          {/* Site Selection */}
+          <div>
+            <label className="block text-sm text-gray-400 mb-2">Site</label>
+            <select
+              value={formData.siteName}
+              onChange={(e) => {
+                const site = sites.find(s => s.name === e.target.value)
+                setFormData({ ...formData, siteName: e.target.value, siteUrl: site?.url || '' })
+              }}
+              className="w-full px-4 py-2.5 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white focus:outline-none focus:border-purple-500"
+            >
+              {sites.map(site => (
+                <option key={site.name} value={site.name}>{site.name}</option>
+              ))}
+            </select>
+          </div>
+          
+          {/* Keywords/SKU */}
+          <div>
+            <label className="block text-sm text-gray-400 mb-2">Keywords / SKU / URL</label>
+            <input
+              type="text"
+              value={formData.monitorInput}
+              onChange={(e) => setFormData({ ...formData, monitorInput: e.target.value })}
+              className="w-full px-4 py-2.5 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+              placeholder="+jordan +retro +chicago -gs -kids"
+            />
+          </div>
+          
+          {/* Sizes */}
+          <div>
+            <label className="block text-sm text-gray-400 mb-2">Sizes (comma separated)</label>
+            <input
+              type="text"
+              value={formData.sizes}
+              onChange={(e) => setFormData({ ...formData, sizes: e.target.value })}
+              className="w-full px-4 py-2.5 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+              placeholder="10, 10.5, 11, 11.5, 12"
+            />
+          </div>
+          
+          {/* Mode and Quantity */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">Mode</label>
+              <select
+                value={formData.mode}
+                onChange={(e) => setFormData({ ...formData, mode: e.target.value })}
+                className="w-full px-4 py-2.5 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white focus:outline-none focus:border-purple-500"
+              >
+                <option value="safe">Safe</option>
+                <option value="normal">Normal</option>
+                <option value="fast">Fast</option>
+                <option value="preload">Preload</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">Quantity</label>
+              <input
+                type="number"
+                min="1"
+                max="50"
+                value={formData.quantity}
+                onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 1 })}
+                className="w-full px-4 py-2.5 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white focus:outline-none focus:border-purple-500"
+              />
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex justify-end gap-3 mt-6">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={loading || !formData.monitorInput}
+            className="flex items-center gap-2 px-5 py-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-medium rounded-lg transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Create {formData.quantity > 1 ? `${formData.quantity} Tasks` : 'Task'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function Tasks() {
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [loading, setLoading] = useState(true)
+  const [showCreate, setShowCreate] = useState(false)
+  const [filter, setFilter] = useState<'all' | 'running' | 'idle'>('all')
+  
+  const fetchTasks = async () => {
+    try {
+      const data = await api.getTasks()
+      setTasks(data.tasks || [])
+    } catch (e) {
+      console.error(e)
+    }
+    setLoading(false)
+  }
+  
+  useEffect(() => {
+    fetchTasks()
+    const interval = setInterval(fetchTasks, 2000)
+    return () => clearInterval(interval)
+  }, [])
+  
+  const handleStartTask = async (id: string) => {
+    try {
+      await api.startTask(id)
+      fetchTasks()
+    } catch (e) {
+      console.error(e)
+    }
+  }
+  
+  const handleStopTask = async (id: string) => {
+    try {
+      await api.stopTask(id)
+      fetchTasks()
+    } catch (e) {
+      console.error(e)
+    }
+  }
+  
+  const handleDeleteTask = async (id: string) => {
+    try {
+      await api.deleteTask(id)
+      fetchTasks()
+    } catch (e) {
+      console.error(e)
+    }
+  }
+  
+  const handleStartAll = async () => {
+    try {
+      await api.startAllTasks()
+      fetchTasks()
+    } catch (e) {
+      console.error(e)
+    }
+  }
+  
+  const handleStopAll = async () => {
+    try {
+      await api.stopAllTasks()
+      fetchTasks()
+    } catch (e) {
+      console.error(e)
+    }
+  }
+  
+  const filteredTasks = tasks.filter(t => {
+    if (filter === 'running') return t.status === 'running'
+    if (filter === 'idle') return t.status === 'idle'
+    return true
+  })
+  
+  const runningCount = tasks.filter(t => t.status === 'running').length
+  const successCount = tasks.filter(t => t.status === 'success').length
+  
+  return (
+    <div className="p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+            <ShoppingCart className="w-7 h-7 text-purple-400" />
+            Tasks
+          </h1>
+          <p className="text-gray-500 text-sm mt-1">
+            {tasks.length} total • {runningCount} running • {successCount} successful
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          {/* Filter */}
+          <div className="flex items-center gap-1 p-1 bg-[#0f0f18] rounded-lg border border-[#1a1a2e]">
+            {(['all', 'running', 'idle'] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={cn(
+                  "px-3 py-1.5 text-sm font-medium rounded-md transition-colors capitalize",
+                  filter === f
+                    ? "bg-purple-500/20 text-purple-400"
+                    : "text-gray-400 hover:text-white"
+                )}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+          
+          <button
+            onClick={handleStopAll}
+            className="flex items-center gap-2 px-4 py-2 bg-red-500/20 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/30 transition-colors"
+          >
+            <StopCircle className="w-4 h-4" />
+            Stop All
+          </button>
+          
+          <button
+            onClick={handleStartAll}
+            className="flex items-center gap-2 px-4 py-2 bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg hover:bg-green-500/30 transition-colors"
+          >
+            <PlayCircle className="w-4 h-4" />
+            Start All
+          </button>
+          
+          <button
+            onClick={() => setShowCreate(true)}
+            className="flex items-center gap-2 px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white font-medium rounded-lg transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Create Task
+          </button>
+        </div>
+      </div>
+      
+      {/* Tasks List */}
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : filteredTasks.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-gray-500">
+          <ShoppingCart className="w-16 h-16 mb-4 opacity-30" />
+          <p className="text-lg font-medium">No tasks yet</p>
+          <p className="text-sm mb-4">Create a task to start checking out products</p>
+          <button
+            onClick={() => setShowCreate(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-medium rounded-lg transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Create Your First Task
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filteredTasks.map(task => (
+            <TaskRow
+              key={task.id}
+              task={task}
+              onStart={() => handleStartTask(task.id)}
+              onStop={() => handleStopTask(task.id)}
+              onDelete={() => handleDeleteTask(task.id)}
+              onDuplicate={() => {/* TODO */}}
+            />
+          ))}
+        </div>
+      )}
+      
+      {/* Create Modal */}
+      {showCreate && (
+        <CreateTaskModal
+          onClose={() => setShowCreate(false)}
+          onCreated={fetchTasks}
+        />
+      )}
+    </div>
+  )
+}
