@@ -104,8 +104,11 @@ class PhantomEngine:
         logger.debug("Checkout module registered", site_type=site_type)
     
     def set_monitor_manager(self, manager: Any):
-        """Set the monitor manager"""
+        """Set the monitor manager and wire it to TaskManager for auto-task creation"""
         self._monitor_manager = manager
+        # Connect TaskManager to MonitorManager for auto-task creation
+        if hasattr(manager, 'set_task_manager'):
+            manager.set_task_manager(self.task_manager)
     
     def set_captcha_solver(self, solver: Any):
         """Set the captcha solver"""

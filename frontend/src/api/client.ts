@@ -97,4 +97,102 @@ export const api = {
   
   // Captcha
   getCaptchaBalances: () => request<any>('/captcha/balances'),
+  
+  // Monitor Config Persistence
+  saveMonitorConfig: () => request<any>('/monitors/config/save', { method: 'POST' }),
+  loadMonitorConfig: () => request<any>('/monitors/config/load'),
+  restoreMonitorConfig: () => request<any>('/monitors/config/restore', { method: 'POST' }),
+  
+  // Rate Limits
+  getRateLimits: () => request<any>('/monitors/rate-limits'),
+  
+  // Analytics
+  getCheckoutAnalytics: () => request<any>('/analytics/checkout'),
+  
+  // Profile Import
+  importProfiles: async (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const response = await fetch(`${API_BASE}/profiles/import`, {
+      method: 'POST',
+      body: formData,
+    })
+    if (!response.ok) throw new Error(`Import failed: ${response.status}`)
+    return response.json()
+  },
 }
+
+// WebSocket connection for real-time events
+export class EventWebSocket {
+  private ws: WebSocket | null = null
+  private reconnectAttempts = 0
+  private maxReconnectAttempts = 5
+  private listeners: Map<string, Set<(data: any) => void>> = new Map()
+  
+  connect() {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const wsUrl = `${protocol}//${window.location.host}/ws/events`
+    
+    this.ws = new WebSocket(wsUrl)
+    
+    this.ws.onopen = () => {
+      console.log('WebSocket connected')
+      this.reconnectAttempts = 0
+    }
+    
+    this.ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data)
+        if (data.type === 'heartbeat') return
+        
+        const listeners = this.listeners.get(data.type) || new Set()
+        listeners.forEach(callback => callback(data.data))
+        
+        // Also notify 'all' listeners
+        const allListeners = this.listeners.get('all') || new Set()
+        allListeners.forEach(callback => callback(data))
+      } catch (e) {
+        console.error('WebSocket message parse error:', e)
+      }
+    }
+    
+    this.ws.onclose = () => {
+      console.log('WebSocket disconnected')
+      if (this.reconnectAttempts < this.maxReconnectAttempts) {
+        this.reconnectAttempts++
+        setTimeout(() => this.connect(), 2000 * this.reconnectAttempts)
+      }
+    }
+    
+    this.ws.onerror = (error) => {
+      console.error('WebSocket error:', error)
+    }
+  }
+  
+  disconnect() {
+    if (this.ws) {
+      this.ws.close()
+      this.ws = null
+    }
+  }
+  
+  on(eventType: string, callback: (data: any) => void) {
+    if (!this.listeners.has(eventType)) {
+      this.listeners.set(eventType, new Set())
+    }
+    this.listeners.get(eventType)!.add(callback)
+    return () => this.off(eventType, callback)
+  }
+  
+  off(eventType: string, callback: (data: any) => void) {
+    this.listeners.get(eventType)?.delete(callback)
+  }
+  
+  ping() {
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send('ping')
+    }
+  }
+}
+
+export const eventWs = new EventWebSocket()

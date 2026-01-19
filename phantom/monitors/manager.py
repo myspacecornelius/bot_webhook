@@ -13,6 +13,7 @@ from .shopify_monitor import MultiStoreMonitor, DetectedProduct, create_default_
 from .footsites import MultiFootsiteMonitor
 from .products import product_db, CuratedProduct
 from .base import ProductInfo
+from ..core.task import TaskConfig, TaskMode
 
 logger = structlog.get_logger()
 
@@ -61,6 +62,11 @@ class MonitorManager:
         self._events: List[MonitorEvent] = []
         self._max_events = 1000
         
+        # Task manager reference for auto-task creation
+        self._task_manager: Optional[Any] = None
+        self._default_profile_id: Optional[str] = None
+        self._default_proxy_group_id: Optional[str] = None
+        
         # Callbacks
         self._on_event: Optional[Callable[[MonitorEvent], Awaitable[None]]] = None
         self._on_high_priority: Optional[Callable[[MonitorEvent], Awaitable[None]]] = None
@@ -76,6 +82,13 @@ class MonitorManager:
         self.tasks_created = 0
         
         logger.info("MonitorManager initialized")
+    
+    def set_task_manager(self, task_manager: Any, default_profile_id: Optional[str] = None, default_proxy_group_id: Optional[str] = None):
+        """Set the task manager for auto-task creation"""
+        self._task_manager = task_manager
+        self._default_profile_id = default_profile_id
+        self._default_proxy_group_id = default_proxy_group_id
+        logger.info("TaskManager connected to MonitorManager")
     
     def setup_shopify(
         self,
@@ -292,17 +305,53 @@ class MonitorManager:
     
     async def _create_auto_task(self, event: MonitorEvent):
         """Create an automatic task for a detected product"""
-        # This would integrate with TaskManager
-        # For now, just log it
+        if not self._task_manager:
+            logger.warning("TaskManager not connected, cannot create auto-task")
+            return
+        
+        # Determine site type based on source
+        site_type = "shopify" if event.source == "shopify" else "footsite"
+        
+        # Get sizes to target (prefer matched product's target sizes, fallback to available)
+        target_sizes = []
+        if event.matched_product and event.matched_product.sizes:
+            target_sizes = event.matched_product.sizes
+        elif event.product.sizes_available:
+            target_sizes = event.product.sizes_available[:5]
+        
+        # Create task configuration
+        config = TaskConfig(
+            site_type=site_type,
+            site_name=event.store_name,
+            site_url=event.product.url.split('/products/')[0] if '/products/' in event.product.url else event.product.url,
+            product_url=event.product.url,
+            monitor_input=event.product.title,
+            sizes=target_sizes,
+            mode=TaskMode.FAST if event.priority == "high" else TaskMode.NORMAL,
+            profile_id=self._default_profile_id,
+            proxy_group_id=self._default_proxy_group_id,
+            monitor_delay=1000,  # Fast monitoring for auto-tasks
+            retry_delay=1500,
+        )
+        
+        # Create the task
+        task = self._task_manager.create_task(config)
         self.tasks_created += 1
         
         logger.info(
-            "Auto-task would be created",
+            "Auto-task created",
+            task_id=task.id,
             product=event.product.title[:50],
             store=event.store_name,
             url=event.product.url,
-            sizes=event.product.sizes_available[:5]
+            sizes=target_sizes[:5],
+            mode=config.mode.value,
         )
+        
+        # Optionally auto-start the task for high priority items
+        if event.priority == "high":
+            await self._task_manager.start_task(task.id)
+            logger.info("Auto-started high priority task", task_id=task.id)
     
     def add_shopify_store(
         self,

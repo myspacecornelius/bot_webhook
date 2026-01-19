@@ -265,6 +265,27 @@ class MonitorGroup(Base):
     monitors = relationship("Monitor", back_populates="group")
 
 
+class MonitorStore(Base):
+    """Persistent Shopify store configuration for monitoring"""
+    __tablename__ = 'monitor_stores'
+    
+    id = Column(String(36), primary_key=True)
+    name = Column(String(255), nullable=False)
+    url = Column(String(500), nullable=False)
+    enabled = Column(Boolean, default=True)
+    delay_ms = Column(Integer, default=3000)
+    target_sizes = Column(JSON)  # List of target sizes
+    
+    # Stats
+    products_found = Column(Integer, default=0)
+    success_count = Column(Integer, default=0)
+    error_count = Column(Integer, default=0)
+    last_check = Column(DateTime)
+    
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+
+
 class ProductCache(Base):
     """Cached product information"""
     __tablename__ = 'product_cache'

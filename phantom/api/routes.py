@@ -2,8 +2,10 @@
 FastAPI Routes for Phantom Bot Web UI
 """
 
-from typing import Optional, List
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+import asyncio
+import json
+from typing import Optional, List, Set
+from fastapi import FastAPI, HTTPException, BackgroundTasks, WebSocket, WebSocketDisconnect, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import structlog
@@ -80,6 +82,43 @@ class ProxyGroupCreate(BaseModel):
 
 class ProxyTest(BaseModel):
     group_id: Optional[str] = None
+
+
+# WebSocket connection manager for real-time events
+class ConnectionManager:
+    """Manages WebSocket connections for real-time event broadcasting"""
+    
+    def __init__(self):
+        self.active_connections: Set[WebSocket] = set()
+    
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.add(websocket)
+        logger.info("WebSocket client connected", total=len(self.active_connections))
+    
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.discard(websocket)
+        logger.info("WebSocket client disconnected", total=len(self.active_connections))
+    
+    async def broadcast(self, message: dict):
+        """Broadcast message to all connected clients"""
+        if not self.active_connections:
+            return
+        
+        data = json.dumps(message)
+        disconnected = []
+        
+        for connection in self.active_connections:
+            try:
+                await connection.send_text(data)
+            except Exception:
+                disconnected.append(connection)
+        
+        for conn in disconnected:
+            self.active_connections.discard(conn)
+
+
+ws_manager = ConnectionManager()
 
 
 def create_app() -> FastAPI:
@@ -339,6 +378,105 @@ def create_app() -> FastAPI:
         monitor_manager.add_shopify_store(data.name, data.url, data.delay_ms, data.target_sizes)
         return {"message": f"Store '{data.name}' added"}
     
+    @app.post("/api/monitors/config/save")
+    async def save_monitor_config():
+        """Save current monitor configuration to database for persistence"""
+        from ..utils.database import db
+        import uuid
+        
+        if not monitor_manager.shopify_monitor:
+            return {"message": "No monitor configuration to save", "count": 0}
+        
+        saved_count = 0
+        async with db.session() as session:
+            for store in monitor_manager.shopify_monitor.stores:
+                # Check if store already exists
+                existing = await session.execute(
+                    "SELECT id FROM monitor_stores WHERE url = :url",
+                    {"url": store.url}
+                )
+                row = existing.first()
+                
+                if row:
+                    # Update existing
+                    await session.execute(
+                        """UPDATE monitor_stores SET 
+                           name = :name, enabled = :enabled, delay_ms = :delay_ms,
+                           target_sizes = :target_sizes, updated_at = CURRENT_TIMESTAMP
+                           WHERE id = :id""",
+                        {
+                            "id": row[0],
+                            "name": store.name,
+                            "enabled": True,
+                            "delay_ms": store.delay_ms,
+                            "target_sizes": json.dumps(store.target_sizes or []),
+                        }
+                    )
+                else:
+                    # Insert new
+                    await session.execute(
+                        """INSERT INTO monitor_stores (id, name, url, enabled, delay_ms, target_sizes)
+                           VALUES (:id, :name, :url, :enabled, :delay_ms, :target_sizes)""",
+                        {
+                            "id": str(uuid.uuid4()),
+                            "name": store.name,
+                            "url": store.url,
+                            "enabled": True,
+                            "delay_ms": store.delay_ms,
+                            "target_sizes": json.dumps(store.target_sizes or []),
+                        }
+                    )
+                saved_count += 1
+            await session.commit()
+        
+        return {"message": f"Saved {saved_count} monitor configurations", "count": saved_count}
+    
+    @app.get("/api/monitors/config/load")
+    async def load_monitor_config():
+        """Load monitor configuration from database"""
+        from ..utils.database import db
+        
+        async with db.session() as session:
+            result = await session.execute(
+                "SELECT id, name, url, enabled, delay_ms, target_sizes FROM monitor_stores WHERE enabled = 1"
+            )
+            rows = result.fetchall()
+        
+        stores = []
+        for row in rows:
+            stores.append({
+                "id": row[0],
+                "name": row[1],
+                "url": row[2],
+                "enabled": bool(row[3]),
+                "delay_ms": row[4],
+                "target_sizes": json.loads(row[5]) if row[5] else [],
+            })
+        
+        return {"stores": stores, "count": len(stores)}
+    
+    @app.post("/api/monitors/config/restore")
+    async def restore_monitor_config():
+        """Restore monitor configuration from database and start monitors"""
+        from ..utils.database import db
+        
+        async with db.session() as session:
+            result = await session.execute(
+                "SELECT name, url, delay_ms, target_sizes FROM monitor_stores WHERE enabled = 1"
+            )
+            rows = result.fetchall()
+        
+        if not rows:
+            return {"message": "No saved configuration to restore", "count": 0}
+        
+        # Set up monitors from saved config
+        for row in rows:
+            name, url, delay_ms, target_sizes = row
+            sizes = json.loads(target_sizes) if target_sizes else None
+            monitor_manager.add_shopify_store(name, url, delay_ms, sizes)
+        
+        return {"message": f"Restored {len(rows)} monitors", "count": len(rows)}
+    
     @app.post("/api/monitors/footsites/setup")
     async def setup_footsite_monitors(data: FootsiteSetup):
         """Set up Footsite monitoring"""
@@ -438,4 +576,166 @@ def create_app() -> FastAPI:
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
     
+    # ============ WebSocket for Real-time Events ============
+    
+    @app.websocket("/ws/events")
+    async def websocket_events(websocket: WebSocket):
+        """WebSocket endpoint for real-time monitor events"""
+        await ws_manager.connect(websocket)
+        try:
+            while True:
+                # Keep connection alive, listen for client messages
+                try:
+                    data = await asyncio.wait_for(websocket.receive_text(), timeout=30.0)
+                    # Handle ping/pong or client commands
+                    if data == "ping":
+                        await websocket.send_text("pong")
+                except asyncio.TimeoutError:
+                    # Send heartbeat
+                    await websocket.send_text(json.dumps({"type": "heartbeat"}))
+        except WebSocketDisconnect:
+            ws_manager.disconnect(websocket)
+        except Exception:
+            ws_manager.disconnect(websocket)
+    
+    # ============ Batch Profile Import ============
+    
+    @app.post("/api/profiles/import")
+    async def import_profiles(file: UploadFile = File(...)):
+        """Import profiles from CSV or JSON file"""
+        content = await file.read()
+        filename = file.filename or ""
+        
+        try:
+            profiles_created = 0
+            
+            if filename.endswith(".json"):
+                data = json.loads(content.decode("utf-8"))
+                profiles_list = data if isinstance(data, list) else data.get("profiles", [])
+                
+                for p in profiles_list:
+                    profile = Profile(
+                        name=p.get("name", "Imported"),
+                        email=p.get("email", ""),
+                        phone=p.get("phone", ""),
+                        shipping=Address(
+                            first_name=p.get("shipping_first_name", ""),
+                            last_name=p.get("shipping_last_name", ""),
+                            address1=p.get("shipping_address1", ""),
+                            address2=p.get("shipping_address2", ""),
+                            city=p.get("shipping_city", ""),
+                            state=p.get("shipping_state", ""),
+                            zip_code=p.get("shipping_zip", ""),
+                            country=p.get("shipping_country", "United States"),
+                        ),
+                        payment=PaymentCard(
+                            holder_name=p.get("card_holder", ""),
+                            number=p.get("card_number", ""),
+                            expiry=p.get("card_expiry", ""),
+                            cvv=p.get("card_cvv", ""),
+                        ),
+                    )
+                    engine.profile_manager.add_profile(profile)
+                    profiles_created += 1
+                    
+            elif filename.endswith(".csv"):
+                import csv
+                import io
+                reader = csv.DictReader(io.StringIO(content.decode("utf-8")))
+                
+                for row in reader:
+                    profile = Profile(
+                        name=row.get("name", "Imported"),
+                        email=row.get("email", ""),
+                        phone=row.get("phone", ""),
+                        shipping=Address(
+                            first_name=row.get("shipping_first_name", ""),
+                            last_name=row.get("shipping_last_name", ""),
+                            address1=row.get("shipping_address1", ""),
+                            address2=row.get("shipping_address2", ""),
+                            city=row.get("shipping_city", ""),
+                            state=row.get("shipping_state", ""),
+                            zip_code=row.get("shipping_zip", ""),
+                            country=row.get("shipping_country", "United States"),
+                        ),
+                        payment=PaymentCard(
+                            holder_name=row.get("card_holder", ""),
+                            number=row.get("card_number", ""),
+                            expiry=row.get("card_expiry", ""),
+                            cvv=row.get("card_cvv", ""),
+                        ),
+                    )
+                    engine.profile_manager.add_profile(profile)
+                    profiles_created += 1
+            else:
+                raise HTTPException(status_code=400, detail="File must be .json or .csv")
+            
+            return {"message": f"Imported {profiles_created} profiles", "count": profiles_created}
+            
+        except json.JSONDecodeError:
+            raise HTTPException(status_code=400, detail="Invalid JSON format")
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    
+    # ============ Rate Limit Stats ============
+    
+    @app.get("/api/monitors/rate-limits")
+    async def get_rate_limits():
+        """Get rate limit statistics per store"""
+        stats = {}
+        
+        if monitor_manager.shopify_monitor:
+            for store in monitor_manager.shopify_monitor.stores:
+                stats[store.name] = {
+                    "url": store.url,
+                    "delay_ms": store.delay_ms,
+                    "request_count": getattr(store, '_request_count', 0),
+                    "rate_limited": getattr(store, '_rate_limited', False),
+                    "last_request": getattr(store, '_last_request', None),
+                }
+        
+        return {"stores": stats}
+    
+    # ============ Analytics Data ============
+    
+    @app.get("/api/analytics/checkout")
+    async def get_checkout_analytics():
+        """Get checkout success/failure analytics"""
+        tasks = list(engine.task_manager.tasks.values())
+        
+        success_count = sum(1 for t in tasks if t.result and t.result.success)
+        failed_count = sum(1 for t in tasks if t.result and not t.result.success)
+        pending_count = sum(1 for t in tasks if not t.result and t.is_running)
+        
+        # Group by site
+        by_site = {}
+        for t in tasks:
+            site = t.config.site_name or "unknown"
+            if site not in by_site:
+                by_site[site] = {"success": 0, "failed": 0, "total": 0}
+            by_site[site]["total"] += 1
+            if t.result:
+                if t.result.success:
+                    by_site[site]["success"] += 1
+                else:
+                    by_site[site]["failed"] += 1
+        
+        return {
+            "total_tasks": len(tasks),
+            "success": success_count,
+            "failed": failed_count,
+            "pending": pending_count,
+            "success_rate": (success_count / len(tasks) * 100) if tasks else 0,
+            "by_site": by_site,
+        }
+    
     return app
+
+
+# Helper function to broadcast events via WebSocket
+async def broadcast_monitor_event(event_data: dict):
+    """Broadcast a monitor event to all connected WebSocket clients"""
+    await ws_manager.broadcast({
+        "type": "monitor_event",
+        "data": event_data
+    })
