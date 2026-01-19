@@ -123,7 +123,7 @@ python run.py
 ```bash
 # From project root
 source venv/bin/activate  # or `venv\Scripts\activate` on Windows
-python main.py --server --port 8081
+python main.py --mode server --port 8081
 ```
 
 ### Start Frontend Dev Server

@@ -207,7 +207,7 @@ function StoreHealth() {
               <div className="flex items-center gap-3">
                 <div className={cn(
                   "status-dot",
-                  store.errorCount === 0 ? "online" : store.errorCount < 3 ? "warning" : "offline"
+                  (store.errorCount ?? 0) === 0 ? "online" : (store.errorCount ?? 0) < 3 ? "warning" : "offline"
                 )} />
                 <div>
                   <span className="text-sm font-medium text-white">{store.name}</span>
@@ -217,7 +217,7 @@ function StoreHealth() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm font-semibold text-white">{store.productsFound.toLocaleString()}</p>
+                <p className="text-sm font-semibold text-white">{(store.productsFound ?? 0).toLocaleString()}</p>
                 <p className="text-xs text-zinc-500">products</p>
               </div>
             </div>
