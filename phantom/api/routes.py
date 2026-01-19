@@ -2,7 +2,7 @@
 FastAPI Routes for Phantom Bot Web UI
 """
 
-from typing import Optional, List, Dict, Any
+from typing import Optional, List
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -75,24 +75,11 @@ class AutoTaskConfig(BaseModel):
 
 class ProxyGroupCreate(BaseModel):
     name: str
-    proxies: str
+    proxies: str  # Newline-separated
 
 
 class ProxyTest(BaseModel):
     group_id: Optional[str] = None
-
-
-class ProxyGroupCreate(BaseModel):
-    name: str
-    proxies: str  # Newline-separated
-
-
-class MonitorCreate(BaseModel):
-    site_name: str
-    site_url: str
-    keywords: str
-    delay: int = 3000
-    proxy_group_id: Optional[str] = None
 
 
 def create_app() -> FastAPI:

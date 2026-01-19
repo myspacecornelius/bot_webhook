@@ -1,12 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { 
   Radio, 
   Play, 
   Pause, 
   Plus,
-  Settings,
   Check,
-  X,
   RefreshCw,
   Store,
   Globe
@@ -49,10 +47,6 @@ function StoreCard({
   stats?: { successCount: number; errorCount: number; productsFound: number; lastCheck: string | null }
   onToggle: () => void
 }) {
-  const health = stats 
-    ? stats.errorCount === 0 ? 'good' : stats.errorCount < 3 ? 'warning' : 'error'
-    : 'unknown'
-  
   return (
     <div className={cn(
       "p-4 rounded-xl border transition-all",
@@ -76,6 +70,9 @@ function StoreCard({
         
         <button
           onClick={onToggle}
+          role="switch"
+          aria-checked={enabled ? "true" : "false"}
+          aria-label={`Toggle ${name} monitoring`}
           className={cn(
             "w-12 h-6 rounded-full transition-colors relative",
             enabled ? "bg-purple-600" : "bg-[#2a2a3a]"

@@ -1,17 +1,13 @@
 import { useState, useEffect } from 'react'
 import { 
-  Settings as SettingsIcon, 
   Bell,
   Moon,
   Sun,
-  Shield,
   Key,
-  Webhook,
   Save,
   Upload,
   Download,
   Trash2,
-  RefreshCw,
   Wallet,
   Loader2
 } from 'lucide-react'
@@ -222,7 +218,37 @@ export function Settings() {
             onChange={(v) => updateSetting('autoSolveCaptcha', v)}
           />
           
-          <div className="pt-4 border-t border-[#1a1a2e] mt-4">
+          {/* Captcha Balances */}
+          <div className="pt-4 border-t border-zinc-800 mt-4">
+            <div className="flex items-center gap-2 text-sm text-purple-400 mb-3">
+              <Wallet className="w-4 h-4" />
+              Account Balances
+            </div>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="p-3 rounded-lg bg-zinc-800/50 border border-zinc-700">
+                <p className="text-xs text-zinc-500 mb-1">2Captcha</p>
+                {loadingBalances ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-zinc-400" />
+                ) : (
+                  <p className="text-lg font-bold text-white">
+                    ${captchaBalances?.twocaptcha?.toFixed(2) ?? '—'}
+                  </p>
+                )}
+              </div>
+              <div className="p-3 rounded-lg bg-zinc-800/50 border border-zinc-700">
+                <p className="text-xs text-zinc-500 mb-1">CapMonster</p>
+                {loadingBalances ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-zinc-400" />
+                ) : (
+                  <p className="text-lg font-bold text-white">
+                    ${captchaBalances?.capmonster?.toFixed(2) ?? '—'}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <div className="pt-4 border-t border-zinc-800">
             <div className="flex items-center gap-2 text-sm text-purple-400 mb-3">
               <Key className="w-4 h-4" />
               API Keys
