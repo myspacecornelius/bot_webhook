@@ -119,15 +119,32 @@ python run.py
 
 ## ⚡ Quick Start
 
+### Start Backend API Server
 ```bash
-# Start with web UI
-python run.py --ui
+# From project root
+source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+python main.py --server --port 8081
+```
 
-# CLI mode
-python run.py --cli
+### Start Frontend Dev Server
+```bash
+# In a separate terminal
+cd frontend
+npm install  # first time only
+npm run dev
+```
 
-# Run specific task group
-python run.py --group "Nike Dunks"
+The frontend will be available at `http://localhost:5173` (or next available port).
+The backend API runs at `http://localhost:8081`.
+
+### Alternative: CLI Mode
+```bash
+python main.py --cli
+```
+
+### Run Specific Task Group
+```bash
+python main.py --group "Nike Dunks"
 ```
 
 ## 🔑 Configuration
