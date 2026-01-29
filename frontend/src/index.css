@@ -374,3 +374,23 @@ body {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
+
+@keyframes bounce-once {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.2); }
+  50% { transform: scale(0.9); }
+  75% { transform: scale(1.1); }
+}
+
+@keyframes progress-bar {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+.animate-bounce-once {
+  animation: bounce-once 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-progress-bar {
+  animation: progress-bar linear forwards;
+}

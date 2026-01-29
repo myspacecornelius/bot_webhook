@@ -8,10 +8,12 @@ import { MonitorsEnhanced as Monitors } from './components/MonitorsEnhanced'
 import { Tasks } from './components/Tasks'
 import { Profiles } from './components/Profiles'
 import { Proxies } from './components/Proxies'
-import { Analytics } from './components/Analytics'
+import { CopCalendar } from './components/CopCalendar'
 import { Intelligence } from './components/Intelligence'
 import { Settings } from './components/Settings'
 import { ToastContainer } from './components/ui/Toast'
+import { SuccessTheater } from './components/SuccessTheater'
+import { StealthMode } from './components/StealthMode'
 
 function App() {
   const { selectedTab, setRunning, setMonitorsRunning, setStats } = useStore()
@@ -58,7 +60,7 @@ function App() {
       case 'proxies':
         return <Proxies />
       case 'analytics':
-        return <Analytics />
+        return <CopCalendar />
       case 'intelligence':
         return <Intelligence />
       case 'settings':
@@ -75,6 +77,8 @@ function App() {
         {renderContent()}
       </main>
       <ToastContainer />
+      <SuccessTheater />
+      <StealthMode />
     </div>
   )
 }

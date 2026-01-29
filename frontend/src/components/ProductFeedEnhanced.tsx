@@ -16,6 +16,7 @@ import {
 import { useStore } from '../store/useStore'
 import { api } from '../api/client'
 import { cn, formatPrice, formatRelativeTime, getProfitClass, playSound } from '../lib/utils'
+import { RadarScanner } from './RadarScanner'
 
 interface ProductEvent {
   id: string
@@ -396,15 +397,15 @@ export function ProductFeedEnhanced() {
       
       {/* Product Grid */}
       {filteredEvents.length === 0 ? (
-        <div className="text-center py-20">
-          <Sparkles className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-white mb-2">No Products Yet</h3>
-          <p className="text-gray-500">
-            {hasActiveFilters 
-              ? 'No products match your filters. Try adjusting them.'
-              : 'Start monitors to see live product detections'}
-          </p>
-        </div>
+        hasActiveFilters ? (
+          <div className="text-center py-20">
+            <Sparkles className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-white mb-2">No Products Match</h3>
+            <p className="text-gray-500">No products match your filters. Try adjusting them.</p>
+          </div>
+        ) : (
+          <RadarScanner />
+        )
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredEvents.map(event => (
