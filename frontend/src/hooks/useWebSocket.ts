@@ -67,8 +67,18 @@ export function useWebSocket() {
       return
     }
     
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const wsUrl = `${protocol}//${window.location.host}/ws/events`
+    // Use production backend URL if configured
+    const apiUrl = import.meta.env.VITE_API_URL
+    let wsUrl: string
+    
+    if (apiUrl && apiUrl.includes('fly.dev')) {
+      // Production: connect to Fly.io backend
+      wsUrl = 'wss://phantom-bot-api.fly.dev/ws/events'
+    } else {
+      // Development: use local proxy
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+      wsUrl = `${protocol}//${window.location.host}/ws/events`
+    }
     
     try {
       wsRef.current = new WebSocket(wsUrl)
