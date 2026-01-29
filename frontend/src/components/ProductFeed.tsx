@@ -4,7 +4,6 @@ import {
   ExternalLink, 
   ShoppingCart, 
   TrendingUp,
-  Filter,
   RefreshCw,
   Volume2,
   VolumeX,

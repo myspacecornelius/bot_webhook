@@ -9,8 +9,6 @@ import {
   Clock,
   Wifi,
   WifiOff,
-  Upload,
-  Download
 } from 'lucide-react'
 import { api } from '../api/client'
 import { cn } from '../lib/utils'

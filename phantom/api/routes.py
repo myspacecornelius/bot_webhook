@@ -305,6 +305,125 @@ def create_app() -> FastAPI:
         background_tasks.add_task(engine.task_manager.stop_all)
         return {"message": "Stopping all tasks..."}
     
+    # ============ Quick Tasks ============
+    
+    class QuickTaskCreate(BaseModel):
+        """Quick task creation - minimal input required"""
+        url: str  # Product URL or store URL
+        sizes: Optional[List[str]] = None
+        quantity: int = 1
+        mode: str = "fast"
+        profile_id: Optional[str] = None
+        proxy_group_id: Optional[str] = None
+        auto_start: bool = False
+    
+    @app.post("/api/tasks/quick")
+    async def create_quick_task(data: QuickTaskCreate, background_tasks: BackgroundTasks):
+        """
+        Quick task creation from URL
+        
+        Automatically detects:
+        - Site type (Shopify, Footsite, etc.)
+        - Site name from URL
+        - Product keywords from URL
+        """
+        import re
+        from urllib.parse import urlparse
+        
+        parsed = urlparse(data.url)
+        domain = parsed.netloc.replace("www.", "")
+        site_url = f"{parsed.scheme}://{parsed.netloc}"
+        
+        # Detect site type and extract info
+        site_type = "shopify"  # Default
+        site_name = domain.split(".")[0].title()
+        monitor_input = data.url
+        
+        # Check for known Footsites
+        footsite_domains = ["footlocker.com", "champssports.com", "eastbay.com", "footaction.com"]
+        if any(fs in domain for fs in footsite_domains):
+            site_type = "footsite"
+        
+        # Extract product info from URL if it's a product page
+        if "/products/" in data.url:
+            # Shopify product URL
+            product_handle = data.url.split("/products/")[-1].split("?")[0].split("#")[0]
+            monitor_input = product_handle.replace("-", " ")
+        elif "/product/" in data.url:
+            # Footsite product URL  
+            product_path = data.url.split("/product/")[-1].split("?")[0]
+            monitor_input = product_path.replace("-", " ").replace("~", " ")
+        
+        # Create tasks
+        created_tasks = []
+        for i in range(data.quantity):
+            config = TaskConfig(
+                site_type=site_type,
+                site_name=site_name,
+                site_url=site_url,
+                product_url=data.url if "/product" in data.url else None,
+                monitor_input=monitor_input,
+                sizes=data.sizes or [],
+                mode=TaskMode(data.mode),
+                profile_id=data.profile_id,
+                proxy_group_id=data.proxy_group_id,
+                monitor_delay=1500 if data.mode == "fast" else 3000,
+                retry_delay=1500,
+            )
+            
+            task = engine.task_manager.create_task(config)
+            created_tasks.append(task.id)
+            
+            # Auto-start if requested
+            if data.auto_start:
+                async def _start(tid=task.id):
+                    await engine.task_manager.start_task(tid)
+                background_tasks.add_task(_start)
+        
+        return {
+            "message": f"Created {len(created_tasks)} quick task(s)",
+            "task_ids": created_tasks,
+            "detected": {
+                "site_type": site_type,
+                "site_name": site_name,
+                "site_url": site_url,
+                "monitor_input": monitor_input[:50],
+            }
+        }
+    
+    @app.post("/api/tasks/quick-batch")
+    async def create_quick_tasks_batch(
+        urls: List[str],
+        sizes: Optional[List[str]] = None,
+        mode: str = "fast",
+        profile_id: Optional[str] = None,
+        auto_start: bool = False,
+        background_tasks: BackgroundTasks = None
+    ):
+        """Create multiple quick tasks from a list of URLs"""
+        results = []
+        
+        for url in urls[:50]:  # Limit to 50 URLs
+            try:
+                data = QuickTaskCreate(
+                    url=url,
+                    sizes=sizes,
+                    quantity=1,
+                    mode=mode,
+                    profile_id=profile_id,
+                    auto_start=auto_start
+                )
+                result = await create_quick_task(data, background_tasks)
+                results.append({"url": url, "success": True, **result})
+            except Exception as e:
+                results.append({"url": url, "success": False, "error": str(e)})
+        
+        return {
+            "total": len(results),
+            "successful": sum(1 for r in results if r.get("success")),
+            "results": results
+        }
+    
     # ============ Intelligence ============
     
     @app.get("/api/intelligence/trending")
@@ -537,6 +656,154 @@ def create_app() -> FastAPI:
     
     # ============ Curated Products ============
     
+    @app.get("/api/monitors/curated-products")
+    async def get_curated_products():
+        """Get curated product database stats"""
+        return product_db.get_stats()
+    
+    # ============ Restock Tracking ============
+    
+    from ..monitors.restock_tracker import restock_tracker
+    
+    @app.get("/api/restocks/history")
+    async def get_restock_history(
+        store_name: Optional[str] = None,
+        product_id: Optional[str] = None,
+        hours: int = 24,
+        limit: int = 100
+    ):
+        """Get restock history with filters"""
+        events = restock_tracker.get_restock_history(store_name, product_id, hours, limit)
+        return {
+            "count": len(events),
+            "events": [event.to_dict() for event in events]
+        }
+    
+    @app.get("/api/restocks/patterns")
+    async def get_restock_patterns(min_restocks: int = 2):
+        """Get detected restock patterns"""
+        patterns = restock_tracker.get_all_patterns(min_restocks)
+        return {
+            "count": len(patterns),
+            "patterns": [pattern.to_dict() for pattern in patterns]
+        }
+    
+    @app.get("/api/restocks/predictions")
+    async def get_restock_predictions(hours_ahead: int = 24):
+        """Get predicted restocks in the next N hours"""
+        predictions = restock_tracker.get_predicted_restocks(hours_ahead)
+        return {
+            "count": len(predictions),
+            "predictions": predictions
+        }
+    
+    @app.get("/api/restocks/stats")
+    async def get_restock_stats():
+        """Get overall restock statistics"""
+        return restock_tracker.get_stats()
+    
+    @app.get("/api/restocks/hot-sizes/{product_id}")
+    async def get_hot_sizes(product_id: str, top_n: int = 5):
+        """Get most frequently restocked sizes for a product"""
+        sizes = restock_tracker.get_hot_sizes(product_id, top_n)
+        return {
+            "product_id": product_id,
+            "hot_sizes": [{"size": size, "count": count} for size, count in sizes]
+        }
+    
+    # ============ Shopify Store Management ============
+    
+    class ShopifyStoreUpdate(BaseModel):
+        enabled: Optional[bool] = None
+        delay_ms: Optional[int] = None
+        target_sizes: Optional[List[str]] = None
+    
+    @app.get("/api/shopify/stores")
+    async def get_shopify_stores():
+        """Get all Shopify stores being monitored"""
+        if not monitor_manager.shopify_monitor:
+            return {"stores": [], "count": 0}
+        
+        stores = []
+        for store_id, monitor in monitor_manager.shopify_monitor.stores.items():
+            stores.append({
+                "id": store_id,
+                "name": monitor.store.name,
+                "url": monitor.store.url,
+                "enabled": monitor.store.enabled,
+                "delay_ms": monitor.store.delay_ms,
+                "target_sizes": monitor.target_sizes,
+                "last_check": monitor.store.last_check.isoformat() if monitor.store.last_check else None,
+                "success_count": monitor.store.success_count,
+                "error_count": monitor.store.error_count,
+                "products_found": monitor.store.products_found,
+            })
+        
+        return {"stores": stores, "count": len(stores)}
+    
+    @app.post("/api/shopify/stores")
+    async def create_shopify_store(data: ShopifyStoreAdd):
+        """Add a new Shopify store to monitor"""
+        monitor_manager.add_shopify_store(
+            name=data.name,
+            url=data.url,
+            delay_ms=data.delay_ms,
+            target_sizes=data.target_sizes
+        )
+        return {"message": f"Store '{data.name}' added successfully"}
+    
+    @app.put("/api/shopify/stores/{store_id}")
+    async def update_shopify_store(store_id: str, data: ShopifyStoreUpdate):
+        """Update a Shopify store configuration"""
+        if not monitor_manager.shopify_monitor:
+            raise HTTPException(status_code=404, detail="No Shopify monitor configured")
+        
+        if store_id not in monitor_manager.shopify_monitor.stores:
+            raise HTTPException(status_code=404, detail="Store not found")
+        
+        monitor = monitor_manager.shopify_monitor.stores[store_id]
+        
+        if data.enabled is not None:
+            monitor.store.enabled = data.enabled
+        if data.delay_ms is not None:
+            monitor.store.delay_ms = data.delay_ms
+        if data.target_sizes is not None:
+            monitor.target_sizes = monitor._normalize_sizes(data.target_sizes)
+        
+        return {"message": f"Store '{monitor.store.name}' updated successfully"}
+    
+    @app.delete("/api/shopify/stores/{store_id}")
+    async def delete_shopify_store(store_id: str):
+        """Remove a Shopify store from monitoring"""
+        if not monitor_manager.shopify_monitor:
+            raise HTTPException(status_code=404, detail="No Shopify monitor configured")
+        
+        if store_id not in monitor_manager.shopify_monitor.stores:
+            raise HTTPException(status_code=404, detail="Store not found")
+        
+        store_name = monitor_manager.shopify_monitor.stores[store_id].store.name
+        del monitor_manager.shopify_monitor.stores[store_id]
+        
+        return {"message": f"Store '{store_name}' removed successfully"}
+    
+    @app.get("/api/shopify/stores/{store_id}/restocks")
+    async def get_store_restocks(store_id: str, hours: int = 24, limit: int = 50):
+        """Get restock history for a specific store"""
+        if not monitor_manager.shopify_monitor:
+            raise HTTPException(status_code=404, detail="No Shopify monitor configured")
+        
+        if store_id not in monitor_manager.shopify_monitor.stores:
+            raise HTTPException(status_code=404, detail="Store not found")
+        
+        store_name = monitor_manager.shopify_monitor.stores[store_id].store.name
+        events = restock_tracker.get_restock_history(store_name=store_name, hours=hours, limit=limit)
+        
+        return {
+            "store_name": store_name,
+            "count": len(events),
+            "events": [event.to_dict() for event in events]
+        }
+    
     @app.get("/api/products/curated")
     async def get_curated_products():
         """Get curated product database"""
@@ -732,10 +999,52 @@ def create_app() -> FastAPI:
     return app
 
 
-# Helper function to broadcast events via WebSocket
+# Helper functions to broadcast events via WebSocket
 async def broadcast_monitor_event(event_data: dict):
     """Broadcast a monitor event to all connected WebSocket clients"""
     await ws_manager.broadcast({
         "type": "monitor_event",
         "data": event_data
     })
+
+
+async def broadcast_task_update(task_data: dict):
+    """Broadcast a task status update to all connected WebSocket clients"""
+    await ws_manager.broadcast({
+        "type": "task_update",
+        "data": task_data
+    })
+
+
+async def broadcast_status_update(status_data: dict):
+    """Broadcast overall status update to all connected WebSocket clients"""
+    await ws_manager.broadcast({
+        "type": "status_update",
+        "data": status_data
+    })
+
+
+# Setup function to connect WebSocket broadcasts to monitor manager
+def setup_websocket_broadcasts():
+    """Connect WebSocket broadcasting to monitor events"""
+    from ..monitors.manager import monitor_manager as mm
+    
+    async def on_monitor_event(event):
+        await broadcast_monitor_event({
+            "id": f"{event.timestamp.isoformat()}-{event.product.title[:20]}",
+            "type": event.event_type,
+            "source": event.source,
+            "store": event.store_name,
+            "product": event.product.title,
+            "url": event.product.url,
+            "price": event.product.price,
+            "sizes": event.product.sizes_available[:10] if event.product.sizes_available else [],
+            "matched": event.matched_product.name if event.matched_product else None,
+            "profit": event.matched_product.profit_dollar if event.matched_product else None,
+            "confidence": event.match_confidence,
+            "priority": event.priority,
+            "timestamp": event.timestamp.isoformat(),
+        })
+    
+    mm.set_event_callback(on_monitor_event)
+    logger.info("WebSocket broadcasts connected to monitor manager")

@@ -1,11 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { 
   TrendingUp, 
   Search,
-  DollarSign,
-  Calendar,
-  Star,
-  ExternalLink,
   RefreshCw,
   Flame,
   Tag

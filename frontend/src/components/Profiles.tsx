@@ -6,16 +6,12 @@ import {
   Edit,
   CreditCard,
   MapPin,
-  Mail,
-  Phone,
   Check,
-  X,
   Copy,
   Eye,
   EyeOff
 } from 'lucide-react'
 import { api } from '../api/client'
-import { cn } from '../lib/utils'
 
 interface Profile {
   id: string

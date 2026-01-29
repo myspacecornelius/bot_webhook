@@ -69,6 +69,25 @@ export const api = {
   startAllTasks: () => request<any>('/tasks/start-all', { method: 'POST' }),
   stopAllTasks: () => request<any>('/tasks/stop-all', { method: 'POST' }),
   
+  // Quick Tasks
+  createQuickTask: (data: {
+    url: string
+    sizes?: string[]
+    quantity?: number
+    mode?: string
+    profile_id?: string
+    proxy_group_id?: string
+    auto_start?: boolean
+  }) => request<any>('/tasks/quick', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  createQuickTasksBatch: (urls: string[], sizes?: string[], mode?: string, autoStart?: boolean) =>
+    request<any>('/tasks/quick-batch', {
+      method: 'POST',
+      body: JSON.stringify({ urls, sizes, mode, auto_start: autoStart }),
+    }),
+  
   // Profiles
   getProfiles: () => request<any>('/profiles'),
   createProfile: (profile: any) => request<any>('/profiles', {
@@ -120,6 +139,23 @@ export const api = {
     if (!response.ok) throw new Error(`Import failed: ${response.status}`)
     return response.json()
   },
+  
+  // Shopify Stores
+  getShopifyStores: () => request<any>('/monitors/shopify/stores'),
+  updateShopifyStore: (storeId: string, updates: any) =>
+    request<any>(`/monitors/shopify/stores/${storeId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updates),
+    }),
+  deleteShopifyStore: (storeId: string) =>
+    request<any>(`/monitors/shopify/stores/${storeId}`, { method: 'DELETE' }),
+  
+  // Restock tracking
+  getRestockHistory: (hours = 24, limit = 50) =>
+    request<any>(`/monitors/restocks/history?hours=${hours}&limit=${limit}`),
+  getRestockStats: () => request<any>('/monitors/restocks/stats'),
+  getRestockPatterns: (minOccurrences = 2) =>
+    request<any>(`/monitors/restocks/patterns?min_occurrences=${minOccurrences}`),
 }
 
 // WebSocket connection for real-time events

@@ -8,15 +8,14 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  AlertCircle,
   MoreVertical,
   Copy,
-  Edit,
   PlayCircle,
-  StopCircle
+  StopCircle,
+  Zap
 } from 'lucide-react'
 import { api } from '../api/client'
-import { cn, formatPrice } from '../lib/utils'
+import { cn } from '../lib/utils'
 
 interface Task {
   id: string
@@ -132,6 +131,129 @@ function TaskRow({ task, onStart, onStop, onDelete, onDuplicate }: {
               </button>
             </div>
           )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function QuickTaskModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+  const [url, setUrl] = useState('')
+  const [sizes, setSizes] = useState('')
+  const [quantity, setQuantity] = useState(1)
+  const [autoStart, setAutoStart] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const [detected, setDetected] = useState<any>(null)
+  
+  const handleSubmit = async () => {
+    if (!url.trim()) return
+    
+    setLoading(true)
+    try {
+      const result = await api.createQuickTask({
+        url: url.trim(),
+        sizes: sizes ? sizes.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+        quantity,
+        mode: 'fast',
+        auto_start: autoStart,
+      })
+      
+      setDetected(result.detected)
+      onCreated()
+      
+      // Show success briefly then close
+      setTimeout(() => onClose(), 1500)
+    } catch (e) {
+      console.error(e)
+    }
+    setLoading(false)
+  }
+  
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={onClose}>
+      <div className="w-full max-w-md bg-[#0f0f18] border border-[#1a1a2e] rounded-2xl p-6" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-2 bg-cyan-500/20 rounded-lg">
+            <Zap className="w-5 h-5 text-cyan-400" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-white">Quick Task</h2>
+            <p className="text-sm text-gray-500">Paste a URL and we'll do the rest</p>
+          </div>
+        </div>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm text-gray-400 mb-2">Product URL</label>
+            <input
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              className="w-full px-4 py-3 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+              placeholder="https://kith.com/products/..."
+              autoFocus
+            />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">Sizes (optional)</label>
+              <input
+                type="text"
+                value={sizes}
+                onChange={(e) => setSizes(e.target.value)}
+                className="w-full px-4 py-2.5 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                placeholder="10, 10.5, 11"
+              />
+            </div>
+            <div>
+              <label className="block text-sm text-gray-400 mb-2">Quantity</label>
+              <input
+                type="number"
+                min="1"
+                max="20"
+                value={quantity}
+                onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                className="w-full px-4 py-2.5 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white focus:outline-none focus:border-cyan-500"
+              />
+            </div>
+          </div>
+          
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={autoStart}
+              onChange={(e) => setAutoStart(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-600 bg-[#1a1a24] text-cyan-500 focus:ring-cyan-500"
+            />
+            <span className="text-sm text-gray-300">Auto-start task after creation</span>
+          </label>
+          
+          {detected && (
+            <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
+              <p className="text-sm text-emerald-400 font-medium">✓ Task created!</p>
+              <p className="text-xs text-gray-400 mt-1">
+                {detected.site_name} • {detected.site_type} • {detected.monitor_input}
+              </p>
+            </div>
+          )}
+        </div>
+        
+        <div className="flex justify-end gap-3 mt-6">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={loading || !url.trim()}
+            className="flex items-center gap-2 px-5 py-2 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white font-medium rounded-lg transition-colors"
+          >
+            <Zap className="w-4 h-4" />
+            {loading ? 'Creating...' : `Create ${quantity > 1 ? `${quantity} Tasks` : 'Task'}`}
+          </button>
         </div>
       </div>
     </div>
@@ -287,6 +409,7 @@ export function Tasks() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreate, setShowCreate] = useState(false)
+  const [showQuickTask, setShowQuickTask] = useState(false)
   const [filter, setFilter] = useState<'all' | 'running' | 'idle'>('all')
   
   const fetchTasks = async () => {
@@ -301,7 +424,8 @@ export function Tasks() {
   
   useEffect(() => {
     fetchTasks()
-    const interval = setInterval(fetchTasks, 2000)
+    // Reduced polling frequency - WebSocket handles real-time task updates
+    const interval = setInterval(fetchTasks, 10000)
     return () => clearInterval(interval)
   }, [])
   
@@ -409,6 +533,14 @@ export function Tasks() {
           </button>
           
           <button
+            onClick={() => setShowQuickTask(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-lg hover:bg-cyan-500/30 transition-colors"
+          >
+            <Zap className="w-4 h-4" />
+            Quick Task
+          </button>
+          
+          <button
             onClick={() => setShowCreate(true)}
             className="flex items-center gap-2 px-5 py-2 bg-purple-600 hover:bg-purple-500 text-white font-medium rounded-lg transition-colors"
           >
@@ -455,6 +587,14 @@ export function Tasks() {
       {showCreate && (
         <CreateTaskModal
           onClose={() => setShowCreate(false)}
+          onCreated={fetchTasks}
+        />
+      )}
+      
+      {/* Quick Task Modal */}
+      {showQuickTask && (
+        <QuickTaskModal
+          onClose={() => setShowQuickTask(false)}
           onCreated={fetchTasks}
         />
       )}

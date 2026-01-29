@@ -9,12 +9,15 @@ import {
   Activity,
   DollarSign,
   Target,
-  Loader2
+  Loader2,
+  Wifi,
+  WifiOff
 } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import { api } from '../api/client'
 import { cn, formatPrice, formatRelativeTime } from '../lib/utils'
 import { toast } from './ui/Toast'
+import { useWebSocket } from '../hooks/useWebSocket'
 
 function StatCard({ 
   title, 
@@ -237,8 +240,11 @@ export function Dashboard() {
     stats,
     setStats,
     setShopifyStores,
-    addEvent
+    isConnected
   } = useStore()
+  
+  // Initialize WebSocket connection for real-time updates
+  useWebSocket()
   
   const [loading, setLoading] = useState(false)
   
@@ -281,7 +287,8 @@ export function Dashboard() {
     setLoading(false)
   }
   
-  // Poll for updates
+  // Poll for status only (events come via WebSocket now)
+  // Reduced frequency since WebSocket handles real-time updates
   useEffect(() => {
     const pollStatus = async () => {
       try {
@@ -302,24 +309,8 @@ export function Dashboard() {
     }
     
     pollStatus()
-    const interval = setInterval(pollStatus, 5000)
-    return () => clearInterval(interval)
-  }, [])
-  
-  // Poll for events
-  useEffect(() => {
-    const pollEvents = async () => {
-      try {
-        const data = await api.getMonitorEvents(10)
-        if (data.events) {
-          data.events.forEach((e: any, i: number) => {
-            addEvent({ ...e, id: `${e.timestamp}-${i}` })
-          })
-        }
-      } catch {}
-    }
-    
-    const interval = setInterval(pollEvents, 3000)
+    // Poll less frequently - WebSocket handles real-time events
+    const interval = setInterval(pollStatus, 15000)
     return () => clearInterval(interval)
   }, [])
   
@@ -328,7 +319,20 @@ export function Dashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Command Center</h1>
+          <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
+            Command Center
+            {isConnected ? (
+              <span className="flex items-center gap-1.5 px-2 py-1 text-xs bg-emerald-500/10 text-emerald-400 rounded-full">
+                <Wifi className="w-3 h-3" />
+                Live
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5 px-2 py-1 text-xs bg-amber-500/10 text-amber-400 rounded-full">
+                <WifiOff className="w-3 h-3" />
+                Connecting...
+              </span>
+            )}
+          </h1>
           <p className="text-zinc-500 text-sm mt-1">Real-time monitoring and control</p>
         </div>
         

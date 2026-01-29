@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { 
   BarChart3, 
   TrendingUp,
-  TrendingDown,
   DollarSign,
   ShoppingBag,
   Target,
@@ -11,14 +10,6 @@ import {
   ArrowDownRight
 } from 'lucide-react'
 import { cn, formatPrice } from '../lib/utils'
-
-interface DailyStats {
-  date: string
-  checkouts: number
-  declines: number
-  revenue: number
-  profit: number
-}
 
 function StatCard({ title, value, change, icon: Icon, prefix = '', color = 'purple' }: {
   title: string
@@ -141,7 +132,7 @@ function RecentActivity({ activity }: { activity: { type: string; product: strin
 
 export function Analytics() {
   const [timeRange, setTimeRange] = useState<'today' | 'week' | 'month' | 'all'>('week')
-  const [stats, setStats] = useState({
+  const [stats] = useState({
     totalCheckouts: 47,
     totalDeclines: 23,
     totalRevenue: 14250,
