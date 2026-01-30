@@ -13,6 +13,7 @@ import structlog
 from ..core.engine import engine
 from ..core.task import TaskConfig, TaskMode
 from ..core.profile import Profile, Address, PaymentCard
+from .auth_routes import router as auth_router
 
 logger = structlog.get_logger()
 
@@ -138,6 +139,9 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    
+    # Include auth routes
+    app.include_router(auth_router)
     
     # ============ Status ============
     
