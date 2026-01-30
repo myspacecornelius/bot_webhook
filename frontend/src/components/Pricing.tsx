@@ -68,7 +68,7 @@ const TIERS = [
 ]
 
 export function Pricing() {
-  const handleSelectTier = async (tierId: string, price: number) => {
+  const handleSelectTier = async (tierId: string, _price: number) => {
     // TODO: Integrate with Stripe checkout
     const email = prompt('Enter your email:')
     if (!email) return

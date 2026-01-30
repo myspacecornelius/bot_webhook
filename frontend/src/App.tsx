@@ -49,7 +49,7 @@ function App() {
     checkAuth()
   }, [])
   
-  const handleLogin = (licenseKey: string) => {
+  const handleLogin = (_licenseKey: string) => {
     setIsAuthenticated(true)
   }
   
