@@ -27,20 +27,12 @@ function App() {
       const license = localStorage.getItem('phantom_license')
       if (license) {
         try {
-          const response = await fetch('/api/auth/validate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ license_key: license })
-          })
-          
-          if (response.ok) {
-            setIsAuthenticated(true)
-          } else {
-            localStorage.removeItem('phantom_license')
-            localStorage.removeItem('phantom_user')
-          }
+          await api.validateLicense(license)
+          setIsAuthenticated(true)
         } catch (e) {
           console.error('Auth check failed:', e)
+          localStorage.removeItem('phantom_license')
+          localStorage.removeItem('phantom_user')
         }
       }
       setIsCheckingAuth(false)
@@ -110,8 +102,8 @@ function App() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading Phantom...</p>
+          <div className="w-16 h-16 border-4 border-moss-500/30 border-t-moss-500 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-[var(--muted)]">Loading Phantom...</p>
         </div>
       </div>
     )

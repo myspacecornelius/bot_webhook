@@ -31,75 +31,65 @@ export function Sidebar() {
   const highPriorityCount = events.filter(e => e.priority === 'high').length
   
   return (
-    <aside className="w-[260px] h-screen bg-zinc-950 border-r border-zinc-800/50 flex flex-col">
+    <aside className="w-[260px] h-screen flex flex-col" style={{ background: 'var(--surface)', borderRight: '1px solid var(--border)' }}>
       {/* Logo */}
-      <div className="p-5 border-b border-zinc-800/50">
+      <div className="p-5" style={{ borderBottom: '1px solid var(--border)' }}>
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
-              <Zap className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--primary)', boxShadow: 'var(--shadow-sm)' }}>
+              <Zap className="w-5 h-5" style={{ color: '#FFF8ED' }} />
             </div>
-            <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-zinc-950" />
+            <div className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full border-2" style={{ background: '#2F6F4E', borderColor: 'var(--surface)' }} />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-gradient tracking-tight">
+            <h1 className="text-lg font-bold tracking-tight" style={{ color: 'var(--text)' }}>
               PHANTOM
             </h1>
-            <p className="text-[10px] text-zinc-600 uppercase tracking-widest">Bot Suite v1.0</p>
+            <p className="text-[10px] uppercase tracking-widest" style={{ color: 'var(--muted)' }}>Bot Suite v1.0</p>
           </div>
         </div>
       </div>
       
       {/* Status Cards */}
       <div className="p-3 space-y-2">
-        <div className={cn(
-          "p-3 rounded-lg border transition-all duration-300",
-          isRunning 
-            ? "bg-emerald-500/5 border-emerald-500/20" 
-            : "bg-zinc-900/50 border-zinc-800"
-        )}>
+        <div className="p-3 rounded-lg border transition-all duration-300" style={{
+          background: isRunning ? 'rgba(47,111,78,0.08)' : 'var(--surface2)',
+          borderColor: isRunning ? 'rgba(47,111,78,0.25)' : 'var(--border)'
+        }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className={cn(
                 "status-dot",
                 isRunning ? "online pulsing" : "offline"
               )} />
-              <span className="text-xs font-medium text-zinc-400">Engine</span>
+              <span className="text-xs font-medium" style={{ color: 'var(--muted)' }}>Engine</span>
             </div>
-            <span className={cn(
-              "text-xs font-semibold",
-              isRunning ? "text-emerald-400" : "text-zinc-600"
-            )}>
+            <span className="text-xs font-semibold" style={{ color: isRunning ? '#2F6F4E' : 'var(--muted)' }}>
               {isRunning ? "Running" : "Stopped"}
             </span>
           </div>
         </div>
         
-        <div className={cn(
-          "p-3 rounded-lg border transition-all duration-300",
-          monitorsRunning 
-            ? "bg-cyan-500/5 border-cyan-500/20" 
-            : "bg-zinc-900/50 border-zinc-800"
-        )}>
+        <div className="p-3 rounded-lg border transition-all duration-300" style={{
+          background: monitorsRunning ? 'rgba(106,123,78,0.08)' : 'var(--surface2)',
+          borderColor: monitorsRunning ? 'rgba(106,123,78,0.25)' : 'var(--border)'
+        }}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className={cn(
                 "status-dot",
                 monitorsRunning ? "online pulsing" : "offline"
-              )} style={{ background: monitorsRunning ? '#22d3ee' : undefined }} />
-              <span className="text-xs font-medium text-zinc-400">Monitors</span>
+              )} style={{ background: monitorsRunning ? 'var(--info)' : undefined }} />
+              <span className="text-xs font-medium" style={{ color: 'var(--muted)' }}>Monitors</span>
             </div>
-            <span className={cn(
-              "text-xs font-semibold",
-              monitorsRunning ? "text-cyan-400" : "text-zinc-600"
-            )}>
+            <span className="text-xs font-semibold" style={{ color: monitorsRunning ? 'var(--primary)' : 'var(--muted)' }}>
               {monitorsRunning ? "Active" : "Idle"}
             </span>
           </div>
           {monitorsRunning && stats.totalProductsFound > 0 && (
-            <div className="mt-2 pt-2 border-t border-cyan-500/10">
-              <p className="text-[10px] text-zinc-500">
-                <span className="text-cyan-400 font-semibold">{stats.totalProductsFound.toLocaleString()}</span> products found
+            <div className="mt-2 pt-2" style={{ borderTop: '1px solid rgba(106,123,78,0.15)' }}>
+              <p className="text-[10px]" style={{ color: 'var(--muted)' }}>
+                <span className="font-semibold" style={{ color: 'var(--primary)' }}>{stats.totalProductsFound.toLocaleString()}</span> products found
               </p>
             </div>
           )}
@@ -108,7 +98,7 @@ export function Sidebar() {
       
       {/* Navigation */}
       <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
-        <p className="px-3 py-2 text-[10px] font-semibold text-zinc-600 uppercase tracking-wider">Navigation</p>
+        <p className="px-3 py-2 text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--muted)' }}>Navigation</p>
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = selectedTab === item.id
@@ -118,17 +108,19 @@ export function Sidebar() {
             <button
               key={item.id}
               onClick={() => setSelectedTab(item.id)}
-              className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
-                isActive 
-                  ? "bg-purple-500/10 text-purple-400 border border-purple-500/20" 
-                  : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 border border-transparent"
-              )}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border"
+              style={{
+                background: isActive ? 'rgba(106,123,78,0.12)' : 'transparent',
+                borderColor: isActive ? 'rgba(106,123,78,0.25)' : 'transparent',
+                color: isActive ? 'var(--primary)' : 'var(--muted)'
+              }}
+              onMouseEnter={(e) => !isActive && (e.currentTarget.style.background = 'rgba(196,138,44,0.08)')}
+              onMouseLeave={(e) => !isActive && (e.currentTarget.style.background = 'transparent')}
             >
-              <Icon className={cn("w-4 h-4", isActive && "text-purple-400")} />
+              <Icon className="w-4 h-4" style={{ color: isActive ? 'var(--primary)' : 'inherit' }} />
               <span className="flex-1 text-left">{item.label}</span>
               {showBadge && (
-                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-rose-500 text-white rounded-md animate-pulse">
+                <span className="px-1.5 py-0.5 text-[10px] font-bold bg-rose-500 text-[var(--text)] rounded-md animate-pulse">
                   {highPriorityCount}
                 </span>
               )}
@@ -138,13 +130,13 @@ export function Sidebar() {
       </nav>
       
       {/* Pro Badge */}
-      <div className="p-3 border-t border-zinc-800/50">
-        <div className="p-3 rounded-xl bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border border-purple-500/20">
+      <div className="p-3" style={{ borderTop: '1px solid var(--border)' }}>
+        <div className="p-3 rounded-xl" style={{ background: 'rgba(106,123,78,0.08)', border: '1px solid rgba(106,123,78,0.2)' }}>
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-purple-400" />
-            <span className="text-xs font-semibold text-zinc-300">Phantom Pro</span>
+            <Sparkles className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+            <span className="text-xs font-semibold" style={{ color: 'var(--text)' }}>Phantom Pro</span>
           </div>
-          <p className="text-[10px] text-zinc-500 mt-1">Advanced automation suite</p>
+          <p className="text-[10px] mt-1" style={{ color: 'var(--muted)' }}>Advanced automation suite</p>
         </div>
       </div>
     </aside>

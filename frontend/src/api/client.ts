@@ -18,6 +18,16 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  // Auth
+  validateLicense: (licenseKey: string) => request<any>('/auth/validate', {
+    method: 'POST',
+    body: JSON.stringify({ license_key: licenseKey }),
+  }),
+  createCheckoutSession: (tier: string, email: string) => request<any>('/auth/checkout', {
+    method: 'POST',
+    body: JSON.stringify({ tier, email }),
+  }),
+
   // Status
   getStatus: () => request<any>('/status'),
   startEngine: () => request<any>('/start', { method: 'POST' }),

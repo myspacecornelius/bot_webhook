@@ -180,7 +180,7 @@ export default function ShopifyStores() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Shopify Stores</h2>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-[var(--muted)] text-sm mt-1">
             Manage monitored stores and track restocks
           </p>
         </div>
@@ -200,7 +200,7 @@ export default function ShopifyStores() {
           className={`px-4 py-2 font-medium transition-colors ${
             activeTab === 'stores'
               ? 'text-blue-500 border-b-2 border-blue-500'
-              : 'text-gray-400 hover:text-gray-300'
+              : 'text-[var(--muted)] hover:text-[var(--muted)]'
           }`}
         >
           Stores ({stores.length})
@@ -210,7 +210,7 @@ export default function ShopifyStores() {
           className={`px-4 py-2 font-medium transition-colors ${
             activeTab === 'restocks'
               ? 'text-blue-500 border-b-2 border-blue-500'
-              : 'text-gray-400 hover:text-gray-300'
+              : 'text-[var(--muted)] hover:text-[var(--muted)]'
           }`}
         >
           <TrendingUp className="w-4 h-4 inline mr-1" />
@@ -221,7 +221,7 @@ export default function ShopifyStores() {
           className={`px-4 py-2 font-medium transition-colors ${
             activeTab === 'patterns'
               ? 'text-blue-500 border-b-2 border-blue-500'
-              : 'text-gray-400 hover:text-gray-300'
+              : 'text-[var(--muted)] hover:text-[var(--muted)]'
           }`}
         >
           <Clock className="w-4 h-4 inline mr-1" />
@@ -298,7 +298,7 @@ export default function ShopifyStores() {
       {activeTab === 'stores' && (
         <div className="grid gap-4">
           {stores.length === 0 ? (
-            <div className="text-center py-12 text-gray-400">
+            <div className="text-center py-12 text-[var(--muted)]">
               <p>No stores configured</p>
               <button
                 onClick={() => setShowAddForm(true)}
@@ -320,10 +320,10 @@ export default function ShopifyStores() {
                       {store.enabled ? (
                         <CheckCircle className="w-5 h-5 text-green-500" />
                       ) : (
-                        <XCircle className="w-5 h-5 text-gray-500" />
+                        <XCircle className="w-5 h-5 text-[var(--muted)]" />
                       )}
                     </div>
-                    <p className="text-sm text-gray-400 mt-1">{store.url}</p>
+                    <p className="text-sm text-[var(--muted)] mt-1">{store.url}</p>
                     
                     {editingStore === store.id ? (
                       <div className="mt-3 space-y-2">
@@ -362,18 +362,18 @@ export default function ShopifyStores() {
                     ) : (
                       <div className="mt-3 flex flex-wrap gap-4 text-sm">
                         <div>
-                          <span className="text-gray-400">Delay:</span>{' '}
-                          <span className="text-white">{store.delay_ms}ms</span>
+                          <span className="text-[var(--muted)]">Delay:</span>{' '}
+                          <span className="text-[var(--text)]">{store.delay_ms}ms</span>
                         </div>
                         <div>
-                          <span className="text-gray-400">Sizes:</span>{' '}
-                          <span className="text-white">
+                          <span className="text-[var(--muted)]">Sizes:</span>{' '}
+                          <span className="text-[var(--text)]">
                             {store.target_sizes.length > 0 ? store.target_sizes.join(', ') : 'All'}
                           </span>
                         </div>
                         <div>
-                          <span className="text-gray-400">Last Check:</span>{' '}
-                          <span className="text-white">{formatTimestamp(store.last_check)}</span>
+                          <span className="text-[var(--muted)]">Last Check:</span>{' '}
+                          <span className="text-[var(--text)]">{formatTimestamp(store.last_check)}</span>
                         </div>
                       </div>
                     )}
@@ -427,26 +427,26 @@ export default function ShopifyStores() {
             <div className="grid grid-cols-4 gap-4">
               <div className="bg-gray-800 rounded-lg p-4">
                 <div className="text-2xl font-bold text-blue-500">{restockStats.restocks_last_24h}</div>
-                <div className="text-sm text-gray-400">Last 24h</div>
+                <div className="text-sm text-[var(--muted)]">Last 24h</div>
               </div>
               <div className="bg-gray-800 rounded-lg p-4">
                 <div className="text-2xl font-bold text-green-500">{restockStats.restocks_last_7d}</div>
-                <div className="text-sm text-gray-400">Last 7 days</div>
+                <div className="text-sm text-[var(--muted)]">Last 7 days</div>
               </div>
               <div className="bg-gray-800 rounded-lg p-4">
-                <div className="text-2xl font-bold text-purple-500">{restockStats.patterns_detected}</div>
-                <div className="text-sm text-gray-400">Patterns</div>
+                <div className="text-2xl font-bold text-moss-500">{restockStats.patterns_detected}</div>
+                <div className="text-sm text-[var(--muted)]">Patterns</div>
               </div>
               <div className="bg-gray-800 rounded-lg p-4">
                 <div className="text-2xl font-bold text-orange-500">{restockStats.predicted_restocks_24h}</div>
-                <div className="text-sm text-gray-400">Predicted</div>
+                <div className="text-sm text-[var(--muted)]">Predicted</div>
               </div>
             </div>
           )}
           
           <div className="space-y-3">
             {restockHistory.length === 0 ? (
-              <div className="text-center py-12 text-gray-400">
+              <div className="text-center py-12 text-[var(--muted)]">
                 No restocks detected in the last 24 hours
               </div>
             ) : (
@@ -462,7 +462,7 @@ export default function ShopifyStores() {
                     )}
                     <div className="flex-1">
                       <h4 className="font-semibold">{event.product_title}</h4>
-                      <p className="text-sm text-gray-400 mt-1">{event.store_name}</p>
+                      <p className="text-sm text-[var(--muted)] mt-1">{event.store_name}</p>
                       <div className="flex gap-2 mt-2">
                         {event.sizes_restocked.map((size) => (
                           <span
@@ -478,7 +478,7 @@ export default function ShopifyStores() {
                       {event.price && (
                         <div className="text-lg font-bold text-green-500">${event.price}</div>
                       )}
-                      <div className="text-sm text-gray-400 mt-1">
+                      <div className="text-sm text-[var(--muted)] mt-1">
                         {formatTimestamp(event.timestamp)}
                       </div>
                     </div>
@@ -494,7 +494,7 @@ export default function ShopifyStores() {
       {activeTab === 'patterns' && (
         <div className="space-y-3">
           {restockPatterns.length === 0 ? (
-            <div className="text-center py-12 text-gray-400">
+            <div className="text-center py-12 text-[var(--muted)]">
               No restock patterns detected yet
               <p className="text-sm mt-2">Patterns appear after 2+ restocks of the same product</p>
             </div>
@@ -504,20 +504,20 @@ export default function ShopifyStores() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <h4 className="font-semibold">{pattern.product_title}</h4>
-                    <p className="text-sm text-gray-400 mt-1">{pattern.store_name}</p>
+                    <p className="text-sm text-[var(--muted)] mt-1">{pattern.store_name}</p>
                     <div className="flex gap-4 mt-3 text-sm">
                       <div>
-                        <span className="text-gray-400">Restocks:</span>{' '}
-                        <span className="text-white font-medium">{pattern.restock_count}</span>
+                        <span className="text-[var(--muted)]">Restocks:</span>{' '}
+                        <span className="text-[var(--text)] font-medium">{pattern.restock_count}</span>
                       </div>
                       <div>
-                        <span className="text-gray-400">Interval:</span>{' '}
-                        <span className="text-white font-medium">
+                        <span className="text-[var(--muted)]">Interval:</span>{' '}
+                        <span className="text-[var(--text)] font-medium">
                           {formatInterval(pattern.average_interval_hours)}
                         </span>
                       </div>
                       <div>
-                        <span className="text-gray-400">Confidence:</span>{' '}
+                        <span className="text-[var(--muted)]">Confidence:</span>{' '}
                         <span className={`font-medium ${
                           pattern.confidence_score > 0.7 ? 'text-green-500' :
                           pattern.confidence_score > 0.4 ? 'text-yellow-500' :
@@ -530,7 +530,7 @@ export default function ShopifyStores() {
                   </div>
                   {pattern.next_predicted_restock && (
                     <div className="text-right">
-                      <div className="text-sm text-gray-400">Next Predicted</div>
+                      <div className="text-sm text-[var(--muted)]">Next Predicted</div>
                       <div className="text-lg font-bold text-blue-500">
                         {formatTimestamp(pattern.next_predicted_restock)}
                       </div>

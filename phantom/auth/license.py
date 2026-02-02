@@ -126,6 +126,8 @@ class LicenseValidator:
             }
         except jwt.InvalidTokenError as e:
             logger.warning("Invalid license key", error=str(e))
+            print(f"DEBUG: Invalid token error: {e}")
+            print(f"DEBUG: Secret key starts with: {self.secret[:5]}...")
             return {
                 "valid": False,
                 "error": "Invalid license key",
@@ -133,6 +135,7 @@ class LicenseValidator:
             }
         except Exception as e:
             logger.error("License validation error", error=str(e))
+            print(f"DEBUG: General validation error: {e}")
             return {
                 "valid": False,
                 "error": "Validation failed",

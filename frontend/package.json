@@ -29,6 +29,7 @@
     "postcss": "^8.5.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-window": "^2.2.5",
     "recharts": "^3.6.0",
     "socket.io-client": "^4.8.3",
     "tailwind-merge": "^3.4.0",
@@ -70,20 +71,30 @@
       {
         "from": "../python-dist",
         "to": "python",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "mac": {
       "category": "public.app-category.utilities",
-      "target": ["dir"],
+      "target": [
+        "dir"
+      ],
       "identity": null
     },
     "win": {
-      "target": ["nsis", "portable"],
+      "target": [
+        "nsis",
+        "portable"
+      ],
       "icon": "../electron/assets/icon.ico"
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "category": "Utility"
     },
     "publish": {

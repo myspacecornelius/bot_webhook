@@ -1,6 +1,7 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const { spawn } = require('child_process')
 const path = require('path')
+const fs = require('fs').promises
 
 let mainWindow
 let pythonProcess
@@ -128,4 +129,48 @@ ipcMain.handle('validate-license', async (event, licenseKey) => {
   } catch (error) {
     return { valid: false, error: error.message }
   }
+})
+
+// Store handlers (persistent JSON storage)
+const storePath = path.join(app.getPath('userData'), 'store.json')
+let storeData = {}
+
+async function loadStore() {
+  try {
+    const data = await fs.readFile(storePath, 'utf8')
+    storeData = JSON.parse(data)
+  } catch {
+    storeData = {}
+  }
+}
+
+async function saveStore() {
+  await fs.writeFile(storePath, JSON.stringify(storeData, null, 2))
+}
+
+app.whenReady().then(loadStore)
+
+ipcMain.handle('store-get', async (event, key) => {
+  return storeData[key] || null
+})
+
+ipcMain.handle('store-set', async (event, key, value) => {
+  storeData[key] = value
+  await saveStore()
+})
+
+ipcMain.handle('store-delete', async (event, key) => {
+  delete storeData[key]
+  await saveStore()
+})
+
+// Dialog handlers
+ipcMain.handle('dialog-open-file', async (event, options) => {
+  const result = await dialog.showOpenDialog(options)
+  return result
+})
+
+ipcMain.handle('dialog-save-file', async (event, options) => {
+  const result = await dialog.showSaveDialog(options)
+  return result
 })

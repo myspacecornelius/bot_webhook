@@ -75,7 +75,7 @@ export function CopCalendar() {
   
   // Get intensity class based on cop count
   const getIntensityClass = (count: number) => {
-    if (count === 0) return 'bg-[#1a1a24] hover:bg-[#2a2a3a]'
+    if (count === 0) return 'bg-[var(--surface2)] hover:bg-[var(--surface2)]'
     if (count === 1) return 'bg-green-900/30 hover:bg-green-900/40 border-green-500/30'
     if (count === 2) return 'bg-green-700/40 hover:bg-green-700/50 border-green-500/50'
     return 'bg-green-500/60 hover:bg-green-500/70 border-green-400'
@@ -111,12 +111,12 @@ export function CopCalendar() {
           className={cn(
             "aspect-square rounded-lg border transition-all cursor-pointer flex flex-col items-center justify-center",
             getIntensityClass(copData?.count || 0),
-            isToday && "ring-2 ring-cyan-500 ring-offset-2 ring-offset-[#0a0a0f]"
+            isToday && "ring-2 ring-moss-500 ring-offset-2 ring-offset-[#0a0a0f]"
           )}
         >
           <span className={cn(
             "text-sm font-medium",
-            copData ? "text-white" : "text-gray-500"
+            copData ? "text-[var(--text)]" : "text-[var(--muted)]"
           )}>
             {day}
           </span>
@@ -129,15 +129,15 @@ export function CopCalendar() {
         
         {/* Hover Tooltip */}
         {hoveredDate === dateStr && copData && (
-          <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-[#0f0f18] border border-green-500/30 rounded-lg shadow-2xl animate-fade-in">
-            <div className="text-xs text-gray-400 mb-2">{dateStr}</div>
+          <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-[var(--surface)] border border-green-500/30 rounded-lg shadow-2xl animate-fade-in">
+            <div className="text-xs text-[var(--muted)] mb-2">{dateStr}</div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold text-white">{copData.count} Checkouts</span>
+              <span className="text-sm font-semibold text-[var(--text)]">{copData.count} Checkouts</span>
               <span className="text-sm font-bold text-green-400">{formatPrice(copData.revenue)}</span>
             </div>
             <div className="space-y-1 max-h-32 overflow-y-auto">
               {copData.products.map((product, i) => (
-                <div key={i} className="text-xs text-gray-300 flex items-center justify-between">
+                <div key={i} className="text-xs text-[var(--muted)] flex items-center justify-between">
                   <span className="truncate flex-1">{product.name}</span>
                   <span className="text-green-400 ml-2">+{formatPrice(product.profit)}</span>
                 </div>
@@ -154,11 +154,11 @@ export function CopCalendar() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-[var(--text)] flex items-center gap-3">
             <Calendar className="w-7 h-7 text-green-400" />
             Cop Calendar
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-[var(--muted)] text-sm mt-1">
             Track your successful checkouts over time
           </p>
         </div>
@@ -167,27 +167,27 @@ export function CopCalendar() {
         <div className="flex items-center gap-4">
           <button
             onClick={previousMonth}
-            className="p-2 rounded-lg bg-[#1a1a24] hover:bg-[#2a2a3a] transition-colors"
+            className="p-2 rounded-lg bg-[var(--surface2)] hover:bg-[var(--surface2)] transition-colors"
           >
-            <ChevronLeft className="w-5 h-5 text-gray-400" />
+            <ChevronLeft className="w-5 h-5 text-[var(--muted)]" />
           </button>
-          <span className="text-lg font-semibold text-white min-w-[180px] text-center">
+          <span className="text-lg font-semibold text-[var(--text)] min-w-[180px] text-center">
             {monthNames[month]} {year}
           </span>
           <button
             onClick={nextMonth}
-            className="p-2 rounded-lg bg-[#1a1a24] hover:bg-[#2a2a3a] transition-colors"
+            className="p-2 rounded-lg bg-[var(--surface2)] hover:bg-[var(--surface2)] transition-colors"
           >
-            <ChevronRight className="w-5 h-5 text-gray-400" />
+            <ChevronRight className="w-5 h-5 text-[var(--muted)]" />
           </button>
         </div>
       </div>
       
       {/* Legend */}
-      <div className="flex items-center gap-4 mb-6 text-xs text-gray-500">
+      <div className="flex items-center gap-4 mb-6 text-xs text-[var(--muted)]">
         <span>Less</span>
         <div className="flex gap-1">
-          <div className="w-4 h-4 rounded bg-[#1a1a24]" />
+          <div className="w-4 h-4 rounded bg-[var(--surface2)]" />
           <div className="w-4 h-4 rounded bg-green-900/30 border border-green-500/30" />
           <div className="w-4 h-4 rounded bg-green-700/40 border border-green-500/50" />
           <div className="w-4 h-4 rounded bg-green-500/60 border border-green-400" />
@@ -196,11 +196,11 @@ export function CopCalendar() {
       </div>
       
       {/* Calendar Grid */}
-      <div className="bg-[#0f0f18] border border-[#1a1a2e] rounded-xl p-6">
+      <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-6">
         {/* Day Headers */}
         <div className="grid grid-cols-7 gap-2 mb-2">
           {dayNames.map(day => (
-            <div key={day} className="text-center text-xs font-medium text-gray-500 py-2">
+            <div key={day} className="text-center text-xs font-medium text-[var(--muted)] py-2">
               {day}
             </div>
           ))}
@@ -214,21 +214,21 @@ export function CopCalendar() {
       
       {/* Stats Summary */}
       <div className="grid grid-cols-3 gap-4 mt-6">
-        <div className="p-4 rounded-xl bg-[#0f0f18] border border-[#1a1a2e]">
-          <p className="text-sm text-gray-500 mb-1">Total Checkouts</p>
-          <p className="text-2xl font-bold text-white">
+        <div className="p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)]">
+          <p className="text-sm text-[var(--muted)] mb-1">Total Checkouts</p>
+          <p className="text-2xl font-bold text-[var(--text)]">
             {mockCopData.reduce((sum, d) => sum + d.count, 0)}
           </p>
         </div>
-        <div className="p-4 rounded-xl bg-[#0f0f18] border border-green-500/30">
-          <p className="text-sm text-gray-500 mb-1">Total Revenue</p>
+        <div className="p-4 rounded-xl bg-[var(--surface)] border border-green-500/30">
+          <p className="text-sm text-[var(--muted)] mb-1">Total Revenue</p>
           <p className="text-2xl font-bold text-green-400">
             {formatPrice(mockCopData.reduce((sum, d) => sum + d.revenue, 0))}
           </p>
         </div>
-        <div className="p-4 rounded-xl bg-[#0f0f18] border border-[#1a1a2e]">
-          <p className="text-sm text-gray-500 mb-1">Avg Per Checkout</p>
-          <p className="text-2xl font-bold text-white">
+        <div className="p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)]">
+          <p className="text-sm text-[var(--muted)] mb-1">Avg Per Checkout</p>
+          <p className="text-2xl font-bold text-[var(--text)]">
             {formatPrice(mockCopData.reduce((sum, d) => sum + d.revenue, 0) / mockCopData.reduce((sum, d) => sum + d.count, 0))}
           </p>
         </div>

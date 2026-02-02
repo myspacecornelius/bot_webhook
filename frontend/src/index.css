@@ -1,19 +1,35 @@
 @import "tailwindcss";
 
-@theme {
-  --color-phantom: #8b5cf6;
-  --color-phantom-light: #a78bfa;
-  --color-phantom-dark: #6d28d9;
-  --color-accent: #06b6d4;
-  --color-profit-high: #10b981;
-  --color-profit-medium: #f59e0b;
-  --color-profit-low: #ef4444;
-  --color-surface: #09090b;
-  --color-surface-elevated: #18181b;
-  --color-surface-hover: #27272a;
-  --color-border: #27272a;
-  --color-border-accent: #3f3f46;
-  --font-display: 'Inter', system-ui, sans-serif;
+:root {
+  /* Surfaces - Warm Earthy Palette */
+  --bg: #F6F1E7;
+  --surface: #FFF8ED;
+  --surface2: #EFE6D6;
+  --text: #1F1B16;
+  --muted: #6D645B;
+  --border: #D9CDBB;
+
+  /* Accents - Moss, Amber, Clay */
+  --primary: #6A7B4E;
+  --primary2: #8FA36A;
+  --warning: #C48A2C;
+  --danger: #B86A4A;
+  --info: #2F4A3A;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(31,27,22,0.06);
+  --shadow-md: 0 10px 30px rgba(31,27,22,0.08);
+  --shadow-lg: 0 20px 50px rgba(31,27,22,0.12);
+  --focus: 0 0 0 4px rgba(106,123,78,0.15);
+
+  /* Typography */
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Radius */
+  --radius-card: 16px;
+  --radius-input: 12px;
+  --radius-pill: 999px;
 }
 
 @font-face {
@@ -26,7 +42,7 @@
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #3f3f46 transparent;
+  scrollbar-color: var(--surface-3) transparent;
 }
 
 ::-webkit-scrollbar {
@@ -39,27 +55,26 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3f3f46;
+  background: var(--surface-3);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #52525b;
+  background: var(--text-3);
 }
 
 html {
-  background: #09090b;
+  background: var(--bg);
 }
 
 body {
   margin: 0;
   font-family: var(--font-display);
-  background: #09090b;
-  background-image: 
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.15), transparent),
-    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(6, 182, 212, 0.08), transparent);
+  background: radial-gradient(1000px circle at 20% 10%, rgba(196,138,44,0.10), transparent 55%), var(--bg);
   min-height: 100vh;
-  color: #fafafa;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -215,7 +230,7 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #6A7B4E 0%, #6A7B4E 100%);
   color: white;
   font-weight: 500;
   padding: 0.625rem 1.25rem;
@@ -263,7 +278,7 @@ body {
 }
 
 .input:focus {
-  border-color: #8b5cf6;
+  border-color: #6A7B4E;
   box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
 }
 
@@ -280,10 +295,10 @@ body {
   font-weight: 500;
 }
 
-.badge-purple {
-  background: rgba(139, 92, 246, 0.15);
-  color: #a78bfa;
-  border: 1px solid rgba(139, 92, 246, 0.3);
+.badge-moss {
+  background: rgba(106, 123, 78, 0.15);
+  color: #6A7B4E;
+  border: 1px solid rgba(106, 123, 78, 0.3);
 }
 
 .badge-green {
@@ -304,10 +319,10 @@ body {
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-.badge-cyan {
-  background: rgba(6, 182, 212, 0.15);
-  color: #22d3ee;
-  border: 1px solid rgba(6, 182, 212, 0.3);
+.badge-moss {
+  background: rgba(106, 123, 78, 0.15);
+  color: #6A7B4E;
+  border: 1px solid rgba(106, 123, 78, 0.3);
 }
 
 .skeleton {
@@ -322,7 +337,7 @@ body {
 .profit-low { color: #f87171; }
 
 .text-gradient {
-  background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+  background: linear-gradient(135deg, #6A7B4E 0%, #C48A2C 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -337,11 +352,11 @@ body {
   position: absolute;
   inset: 0;
   padding: 1px;
-  background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+  background: linear-gradient(135deg, #6A7B4E, #C48A2C);
   border-radius: inherit;
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: xor;
   -webkit-mask-composite: xor;
+  mask-composite: xor;
   pointer-events: none;
 }
 

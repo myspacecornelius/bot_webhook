@@ -72,7 +72,7 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) 
   }
 
   const colors = {
-    success: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
+    success: 'bg-[var(--primary)]/10 border-moss-500/30 text-[var(--primary)]',
     error: 'bg-red-500/10 border-red-500/30 text-red-400',
     warning: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
     info: 'bg-blue-500/10 border-blue-500/30 text-blue-400',
@@ -90,9 +90,9 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) 
     >
       <Icon className="w-5 h-5 shrink-0 mt-0.5" />
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-sm text-white">{toast.title}</p>
+        <p className="font-medium text-sm text-[var(--text)]">{toast.title}</p>
         {toast.message && (
-          <p className="text-sm text-zinc-400 mt-0.5">{toast.message}</p>
+          <p className="text-sm text-[var(--muted)] mt-0.5">{toast.message}</p>
         )}
       </div>
       <button
@@ -103,7 +103,7 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: () => void }) 
         className="p-1 hover:bg-white/10 rounded-lg transition-colors"
         aria-label="Dismiss notification"
       >
-        <X className="w-4 h-4 text-zinc-400" />
+        <X className="w-4 h-4 text-[var(--muted)]" />
       </button>
     </div>
   )

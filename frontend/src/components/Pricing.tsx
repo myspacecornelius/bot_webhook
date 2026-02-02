@@ -1,5 +1,6 @@
 import { Check, Zap, Crown, Rocket, ArrowRight } from 'lucide-react'
 import { cn } from '../lib/utils'
+import { api } from '../api/client'
 
 const TIERS = [
   {
@@ -7,7 +8,7 @@ const TIERS = [
     name: 'Starter',
     price: 29,
     icon: Zap,
-    color: 'purple',
+    color: 'moss',
     description: 'Perfect for beginners',
     features: [
       '5 concurrent tasks',
@@ -28,7 +29,7 @@ const TIERS = [
     name: 'Pro',
     price: 79,
     icon: Crown,
-    color: 'cyan',
+    color: 'moss',
     description: 'For serious resellers',
     popular: true,
     features: [
@@ -74,13 +75,8 @@ export function Pricing() {
     if (!email) return
 
     try {
-      const response = await fetch('/api/auth/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tier: tierId, email })
-      })
+      const data = await api.createCheckoutSession(tierId, email)
 
-      const data = await response.json()
       if (data.checkout_url) {
         window.location.href = data.checkout_url
       }
@@ -93,10 +89,10 @@ export function Pricing() {
     <div className="min-h-screen p-6">
       {/* Header */}
       <div className="max-w-6xl mx-auto text-center mb-12">
-        <h1 className="text-5xl font-bold text-white mb-4">
+        <h1 className="text-5xl font-bold text-[var(--text)] mb-4">
           Choose Your <span className="text-gradient">Phantom</span> Plan
         </h1>
-        <p className="text-xl text-gray-400">
+        <p className="text-xl text-[var(--muted)]">
           Start botting smarter with AI-powered automation
         </p>
       </div>
@@ -106,9 +102,9 @@ export function Pricing() {
         {TIERS.map((tier) => {
           const Icon = tier.icon
           const colors = {
-            purple: 'from-purple-500/20 to-violet-500/10 border-purple-500/30',
-            cyan: 'from-cyan-500/20 to-blue-500/10 border-cyan-500/30',
-            green: 'from-green-500/20 to-emerald-500/10 border-green-500/30'
+            moss: 'from-moss-500/20 to-moss-500/10 border-moss-500/30',
+            moss: 'from-[var(--info)]/20 to-blue-500/10 border-[var(--info)]/30',
+            green: 'from-green-500/20 to-[var(--primary)]/10 border-green-500/30'
           }
 
           return (
@@ -117,12 +113,12 @@ export function Pricing() {
               className={cn(
                 "relative rounded-2xl border p-8 transition-all hover:scale-105",
                 tier.popular 
-                  ? "bg-gradient-to-br from-cyan-500/20 to-blue-500/10 border-cyan-500 shadow-2xl shadow-cyan-500/50 scale-105" 
+                  ? "bg-gradient-to-br from-[var(--info)]/20 to-blue-500/10 border-[var(--info)] shadow-2xl shadow-[var(--info)]/50 scale-105" 
                   : `bg-gradient-to-br ${colors[tier.color as keyof typeof colors]}`
               )}
             >
               {tier.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-cyan-500 text-white text-sm font-bold rounded-full">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-[var(--info)] text-[var(--text)] text-sm font-bold rounded-full">
                   MOST POPULAR
                 </div>
               )}
@@ -130,20 +126,20 @@ export function Pricing() {
               <div className="flex items-center gap-3 mb-4">
                 <div className={cn(
                   "w-12 h-12 rounded-xl flex items-center justify-center",
-                  tier.popular ? "bg-cyan-500/30" : "bg-white/10"
+                  tier.popular ? "bg-[var(--info)]/10" : "bg-white/10"
                 )}>
-                  <Icon className="w-6 h-6 text-white" />
+                  <Icon className="w-6 h-6 text-[var(--text)]" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-white">{tier.name}</h3>
-                  <p className="text-sm text-gray-400">{tier.description}</p>
+                  <h3 className="text-2xl font-bold text-[var(--text)]">{tier.name}</h3>
+                  <p className="text-sm text-[var(--muted)]">{tier.description}</p>
                 </div>
               </div>
 
               <div className="mb-6">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-5xl font-bold text-white">${tier.price}</span>
-                  <span className="text-gray-400">/month</span>
+                  <span className="text-5xl font-bold text-[var(--text)]">${tier.price}</span>
+                  <span className="text-[var(--muted)]">/month</span>
                 </div>
               </div>
 
@@ -152,8 +148,8 @@ export function Pricing() {
                 className={cn(
                   "w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all mb-6",
                   tier.popular
-                    ? "bg-cyan-600 text-white hover:bg-cyan-500"
-                    : "bg-white/10 text-white hover:bg-white/20"
+                    ? "bg-[var(--info)] text-[var(--text)] hover:bg-[var(--primary)]"
+                    : "bg-white/10 text-[var(--text)] hover:bg-white/20"
                 )}
               >
                 Get {tier.name}
@@ -164,16 +160,16 @@ export function Pricing() {
                 {tier.features.map((feature, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm text-gray-300">{feature}</span>
+                    <span className="text-sm text-[var(--muted)]">{feature}</span>
                   </div>
                 ))}
               </div>
 
               {tier.limitations.length > 0 && (
                 <div className="mt-6 pt-6 border-t border-white/10">
-                  <p className="text-xs text-gray-500 mb-2">Not included:</p>
+                  <p className="text-xs text-[var(--muted)] mb-2">Not included:</p>
                   {tier.limitations.map((limitation, i) => (
-                    <p key={i} className="text-xs text-gray-600 line-through">
+                    <p key={i} className="text-xs text-[var(--muted)] line-through">
                       {limitation}
                     </p>
                   ))}
@@ -186,19 +182,19 @@ export function Pricing() {
 
       {/* FAQ */}
       <div className="max-w-3xl mx-auto">
-        <h2 className="text-2xl font-bold text-white text-center mb-8">Frequently Asked Questions</h2>
+        <h2 className="text-2xl font-bold text-[var(--text)] text-center mb-8">Frequently Asked Questions</h2>
         <div className="space-y-4">
-          <div className="p-6 rounded-xl bg-[#0f0f18] border border-[#1a1a2e]">
-            <h3 className="font-semibold text-white mb-2">Can I cancel anytime?</h3>
-            <p className="text-sm text-gray-400">Yes, cancel anytime. Your license remains active until the end of your billing period.</p>
+          <div className="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)]">
+            <h3 className="font-semibold text-[var(--text)] mb-2">Can I cancel anytime?</h3>
+            <p className="text-sm text-[var(--muted)]">Yes, cancel anytime. Your license remains active until the end of your billing period.</p>
           </div>
-          <div className="p-6 rounded-xl bg-[#0f0f18] border border-[#1a1a2e]">
-            <h3 className="font-semibold text-white mb-2">Do you offer refunds?</h3>
-            <p className="text-sm text-gray-400">7-day money-back guarantee if you're not satisfied.</p>
+          <div className="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)]">
+            <h3 className="font-semibold text-[var(--text)] mb-2">Do you offer refunds?</h3>
+            <p className="text-sm text-[var(--muted)]">7-day money-back guarantee if you're not satisfied.</p>
           </div>
-          <div className="p-6 rounded-xl bg-[#0f0f18] border border-[#1a1a2e]">
-            <h3 className="font-semibold text-white mb-2">Can I upgrade/downgrade?</h3>
-            <p className="text-sm text-gray-400">Yes, change your plan anytime. Upgrades are prorated.</p>
+          <div className="p-6 rounded-xl bg-[var(--surface)] border border-[var(--border)]">
+            <h3 className="font-semibold text-[var(--text)] mb-2">Can I upgrade/downgrade?</h3>
+            <p className="text-sm text-[var(--muted)]">Yes, change your plan anytime. Upgrades are prorated.</p>
           </div>
         </div>
       </div>

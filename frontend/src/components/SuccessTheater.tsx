@@ -55,7 +55,7 @@ export function SuccessTheater() {
         <div
           key={notif.id}
           className={cn(
-            "pointer-events-auto w-96 rounded-xl border-2 border-green-500 bg-gradient-to-br from-green-500/20 to-emerald-500/10 backdrop-blur-xl shadow-2xl shadow-green-500/50 animate-slide-in-right",
+            "pointer-events-auto w-96 rounded-xl border-2 border-green-500 bg-gradient-to-br from-green-500/20 to-[var(--primary)]/10 backdrop-blur-xl shadow-2xl shadow-green-500/50 animate-slide-in-right",
             "transform transition-all duration-500"
           )}
           style={{
@@ -66,17 +66,17 @@ export function SuccessTheater() {
           {/* Success Header */}
           <div className="flex items-center gap-3 p-4 pb-3 border-b border-green-500/30">
             <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center animate-bounce-once">
-              <CheckCircle className="w-7 h-7 text-white fill-current" />
+              <CheckCircle className="w-7 h-7 text-[var(--text)] fill-current" />
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-white text-lg flex items-center gap-2">
+              <h3 className="font-bold text-[var(--text)] text-lg flex items-center gap-2">
                 🎉 CHECKOUT SUCCESS!
               </h3>
               <p className="text-xs text-green-300">{notif.store}</p>
             </div>
             <button
               onClick={() => removeNotification(notif.id)}
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-[var(--muted)] hover:text-[var(--text)] transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -85,7 +85,7 @@ export function SuccessTheater() {
           {/* Product Details */}
           <div className="p-4 flex gap-4">
             {/* Product Image */}
-            <div className="w-20 h-20 rounded-lg bg-[#1a1a24] flex items-center justify-center overflow-hidden flex-shrink-0">
+            <div className="w-20 h-20 rounded-lg bg-[var(--surface2)] flex items-center justify-center overflow-hidden flex-shrink-0">
               {notif.productImage ? (
                 <img 
                   src={notif.productImage} 
@@ -99,10 +99,10 @@ export function SuccessTheater() {
             
             {/* Details */}
             <div className="flex-1 min-w-0">
-              <h4 className="font-semibold text-white text-sm mb-1 line-clamp-2">
+              <h4 className="font-semibold text-[var(--text)] text-sm mb-1 line-clamp-2">
                 {notif.productName}
               </h4>
-              <div className="flex items-center gap-3 text-xs text-gray-300 mb-2">
+              <div className="flex items-center gap-3 text-xs text-[var(--muted)] mb-2">
                 <span className="px-2 py-0.5 bg-white/10 rounded">Size {notif.size}</span>
                 <span>{formatPrice(notif.price)}</span>
               </div>
@@ -124,7 +124,7 @@ export function SuccessTheater() {
           {/* Animated Progress Bar */}
           <div className="h-1 bg-green-500/20 overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-green-500 to-emerald-400 animate-progress-bar"
+              className="h-full bg-gradient-to-r from-green-500 to-moss-400 animate-progress-bar"
               style={{ animationDuration: '10s' }}
             />
           </div>

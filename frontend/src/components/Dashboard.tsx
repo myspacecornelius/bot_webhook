@@ -25,7 +25,7 @@ function StatCard({
   subtitle, 
   icon: Icon, 
   trend,
-  color = 'purple',
+  color = 'moss',
   loading = false
 }: { 
   title: string
@@ -33,50 +33,50 @@ function StatCard({
   subtitle?: string
   icon: any
   trend?: number
-  color?: 'purple' | 'green' | 'yellow' | 'red' | 'cyan'
+  color?: 'moss' | 'green' | 'yellow' | 'red' | 'moss'
   loading?: boolean
 }) {
   const colorClasses = {
-    purple: 'group-hover:shadow-purple-500/20',
-    green: 'group-hover:shadow-emerald-500/20',
+    moss: 'group-hover:shadow-moss-500/20',
+    green: 'group-hover:shadow-moss-500/20',
     yellow: 'group-hover:shadow-amber-500/20',
     red: 'group-hover:shadow-rose-500/20',
-    cyan: 'group-hover:shadow-cyan-500/20',
+    moss: 'group-hover:shadow-[var(--info)]/20',
   }
   
   const iconBgColors = {
-    purple: 'bg-purple-500/10 text-purple-400 group-hover:bg-purple-500/20',
-    green: 'bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20',
+    moss: 'bg-moss-500/10 text-moss-400 group-hover:bg-moss-500/20',
+    green: 'bg-[var(--primary)]/10 text-[var(--primary)] group-hover:bg-[var(--primary)]/10',
     yellow: 'bg-amber-500/10 text-amber-400 group-hover:bg-amber-500/20',
     red: 'bg-rose-500/10 text-rose-400 group-hover:bg-rose-500/20',
-    cyan: 'bg-cyan-500/10 text-cyan-400 group-hover:bg-cyan-500/20',
+    moss: 'bg-[var(--info)]/10 text-[var(--info)] group-hover:bg-[var(--info)]/10',
   }
 
   const accentColors = {
-    purple: 'bg-purple-500',
-    green: 'bg-emerald-500',
+    moss: 'bg-moss-500',
+    green: 'bg-[var(--primary)]',
     yellow: 'bg-amber-500',
     red: 'bg-rose-500',
-    cyan: 'bg-cyan-500',
+    moss: 'bg-[var(--info)]',
   }
   
   return (
     <div className={cn(
-      "group relative p-5 rounded-xl bg-zinc-900/50 border border-zinc-800 overflow-hidden",
-      "transition-all duration-300 hover:border-zinc-700 hover:shadow-xl",
+      "group relative p-5 rounded-xl bg-[var(--surface2)] border border-[var(--border)] overflow-hidden",
+      "transition-all duration-300 hover:border-[var(--border)] hover:shadow-xl",
       colorClasses[color]
     )}>
       <div className={cn("absolute top-0 left-0 w-full h-0.5", accentColors[color], "opacity-50")} />
       
       <div className="flex items-start justify-between">
         <div className="space-y-1">
-          <p className="text-sm font-medium text-zinc-400">{title}</p>
+          <p className="text-sm font-medium text-[var(--muted)]">{title}</p>
           {loading ? (
             <div className="h-9 w-20 skeleton" />
           ) : (
-            <p className="text-3xl font-bold text-white tracking-tight">{value.toLocaleString()}</p>
+            <p className="text-3xl font-bold text-[var(--text)] tracking-tight">{value.toLocaleString()}</p>
           )}
-          {subtitle && <p className="text-xs text-zinc-500">{subtitle}</p>}
+          {subtitle && <p className="text-xs text-[var(--muted)]">{subtitle}</p>}
         </div>
         <div className={cn(
           "p-3 rounded-xl transition-colors duration-300",
@@ -89,7 +89,7 @@ function StatCard({
       {trend !== undefined && (
         <div className={cn(
           "flex items-center gap-1.5 mt-4 text-xs font-medium",
-          trend >= 0 ? "text-emerald-400" : "text-rose-400"
+          trend >= 0 ? "text-[var(--primary)]" : "text-rose-400"
         )}>
           <TrendingUp className={cn("w-3.5 h-3.5", trend < 0 && "rotate-180")} />
           <span>{trend >= 0 ? '+' : ''}{trend}% from last hour</span>
@@ -104,36 +104,36 @@ function LiveFeed() {
   const recentEvents = events.slice(0, 6)
   
   return (
-    <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 overflow-hidden">
-      <div className="flex items-center justify-between p-4 border-b border-zinc-800">
-        <h3 className="font-semibold text-white flex items-center gap-2">
-          <Activity className="w-4 h-4 text-cyan-400" />
+    <div className="bg-[var(--surface2)] rounded-xl border border-[var(--border)] overflow-hidden">
+      <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
+        <h3 className="font-semibold text-[var(--text)] flex items-center gap-2">
+          <Activity className="w-4 h-4 text-[var(--info)]" />
           Live Product Feed
         </h3>
-        <div className="flex items-center gap-2 px-2 py-1 bg-emerald-500/10 rounded-full">
-          <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-          <span className="text-xs font-medium text-emerald-400">Live</span>
+        <div className="flex items-center gap-2 px-2 py-1 bg-[var(--primary)]/10 rounded-full">
+          <div className="w-1.5 h-1.5 bg-moss-400 rounded-full animate-pulse" />
+          <span className="text-xs font-medium text-[var(--primary)]">Live</span>
         </div>
       </div>
       
       <div className="p-4 space-y-2 max-h-[400px] overflow-y-auto">
         {recentEvents.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-zinc-800 flex items-center justify-center">
-              <Zap className="w-6 h-6 text-zinc-600" />
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[var(--surface2)] flex items-center justify-center">
+              <Zap className="w-6 h-6 text-[var(--muted)]" />
             </div>
-            <p className="text-sm font-medium text-zinc-400">No products detected yet</p>
-            <p className="text-xs text-zinc-600 mt-1">Start monitors to see live updates</p>
+            <p className="text-sm font-medium text-[var(--muted)]">No products detected yet</p>
+            <p className="text-xs text-[var(--muted)] mt-1">Start monitors to see live updates</p>
           </div>
         ) : (
           recentEvents.map((event, i) => (
             <div 
               key={event.id || i}
               className={cn(
-                "p-3 rounded-lg border transition-all duration-200 animate-fade-in-up hover:bg-zinc-800/50",
+                "p-3 rounded-lg border transition-all duration-200 animate-fade-in-up hover:bg-[var(--surface2)]",
                 event.priority === 'high' 
-                  ? "bg-emerald-500/5 border-emerald-500/20" 
-                  : "bg-zinc-800/30 border-zinc-800"
+                  ? "bg-[var(--primary)]/10 border-moss-500/20" 
+                  : "bg-[var(--surface2)] border-[var(--border)]"
               )}
             >
               <div className="flex items-start justify-between gap-3">
@@ -141,7 +141,7 @@ function LiveFeed() {
                   <div className="flex items-center gap-2 mb-1.5">
                     <span className={cn(
                       "badge",
-                      event.priority === 'high' ? "badge-green" : "badge-purple"
+                      event.priority === 'high' ? "badge-green" : "badge-moss"
                     )}>
                       {event.store}
                     </span>
@@ -149,12 +149,12 @@ function LiveFeed() {
                       <span className="badge badge-yellow">Matched</span>
                     )}
                   </div>
-                  <p className="text-sm text-white font-medium truncate">{event.product}</p>
-                  <div className="flex items-center gap-2 mt-1.5 text-xs text-zinc-500">
-                    <span className="font-medium text-zinc-400">{formatPrice(event.price)}</span>
-                    <span className="text-zinc-700">•</span>
+                  <p className="text-sm text-[var(--text)] font-medium truncate">{event.product}</p>
+                  <div className="flex items-center gap-2 mt-1.5 text-xs text-[var(--muted)]">
+                    <span className="font-medium text-[var(--muted)]">{formatPrice(event.price)}</span>
+                    <span className="text-[var(--muted)]">•</span>
                     <span>{event.sizes?.slice(0, 3).join(', ')}{event.sizes?.length > 3 ? '...' : ''}</span>
-                    <span className="text-zinc-700">•</span>
+                    <span className="text-[var(--muted)]">•</span>
                     <span>{formatRelativeTime(event.timestamp)}</span>
                   </div>
                 </div>
@@ -162,11 +162,11 @@ function LiveFeed() {
                   <div className="text-right shrink-0">
                     <p className={cn(
                       "text-sm font-bold",
-                      event.profit >= 100 ? "text-emerald-400" : event.profit >= 30 ? "text-amber-400" : "text-zinc-400"
+                      event.profit >= 100 ? "text-[var(--primary)]" : event.profit >= 30 ? "text-amber-400" : "text-[var(--muted)]"
                     )}>
                       +{formatPrice(event.profit)}
                     </p>
-                    <p className="text-xs text-zinc-600">profit</p>
+                    <p className="text-xs text-[var(--muted)]">profit</p>
                   </div>
                 )}
               </div>
@@ -183,29 +183,29 @@ function StoreHealth() {
   const stores = Object.entries(shopifyStores).slice(0, 8)
   
   return (
-    <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 overflow-hidden">
-      <div className="flex items-center justify-between p-4 border-b border-zinc-800">
-        <h3 className="font-semibold text-white flex items-center gap-2">
-          <Target className="w-4 h-4 text-purple-400" />
+    <div className="bg-[var(--surface2)] rounded-xl border border-[var(--border)] overflow-hidden">
+      <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">
+        <h3 className="font-semibold text-[var(--text)] flex items-center gap-2">
+          <Target className="w-4 h-4 text-moss-400" />
           Store Health
         </h3>
-        <span className="text-xs text-zinc-500">{stores.length} stores</span>
+        <span className="text-xs text-[var(--muted)]">{stores.length} stores</span>
       </div>
       
       <div className="p-4 space-y-2 max-h-[400px] overflow-y-auto">
         {stores.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-zinc-800 flex items-center justify-center">
-              <Target className="w-6 h-6 text-zinc-600" />
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[var(--surface2)] flex items-center justify-center">
+              <Target className="w-6 h-6 text-[var(--muted)]" />
             </div>
-            <p className="text-sm font-medium text-zinc-400">No stores configured</p>
-            <p className="text-xs text-zinc-600 mt-1">Add stores in the Monitors tab</p>
+            <p className="text-sm font-medium text-[var(--muted)]">No stores configured</p>
+            <p className="text-xs text-[var(--muted)] mt-1">Add stores in the Monitors tab</p>
           </div>
         ) : (
           stores.map(([id, store]) => (
             <div 
               key={id} 
-              className="flex items-center justify-between p-3 rounded-lg bg-zinc-800/30 border border-zinc-800 hover:border-zinc-700 transition-colors"
+              className="flex items-center justify-between p-3 rounded-lg bg-[var(--surface2)] border border-[var(--border)] hover:border-[var(--border)] transition-colors"
             >
               <div className="flex items-center gap-3">
                 <div className={cn(
@@ -213,15 +213,15 @@ function StoreHealth() {
                   (store.errorCount ?? 0) === 0 ? "online" : (store.errorCount ?? 0) < 3 ? "warning" : "offline"
                 )} />
                 <div>
-                  <span className="text-sm font-medium text-white">{store.name}</span>
-                  <p className="text-xs text-zinc-500">
+                  <span className="text-sm font-medium text-[var(--text)]">{store.name}</span>
+                  <p className="text-xs text-[var(--muted)]">
                     {store.lastCheck ? formatRelativeTime(store.lastCheck) : 'Not checked'}
                   </p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm font-semibold text-white">{(store.productsFound ?? 0).toLocaleString()}</p>
-                <p className="text-xs text-zinc-500">products</p>
+                <p className="text-sm font-semibold text-[var(--text)]">{(store.productsFound ?? 0).toLocaleString()}</p>
+                <p className="text-xs text-[var(--muted)]">products</p>
               </div>
             </div>
           ))
@@ -319,10 +319,10 @@ export function Dashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight flex items-center gap-3">
             Command Center
             {isConnected ? (
-              <span className="flex items-center gap-1.5 px-2 py-1 text-xs bg-emerald-500/10 text-emerald-400 rounded-full">
+              <span className="flex items-center gap-1.5 px-2 py-1 text-xs bg-[var(--primary)]/10 text-[var(--primary)] rounded-full">
                 <Wifi className="w-3 h-3" />
                 Live
               </span>
@@ -333,7 +333,7 @@ export function Dashboard() {
               </span>
             )}
           </h1>
-          <p className="text-zinc-500 text-sm mt-1">Real-time monitoring and control</p>
+          <p className="text-[var(--muted)] text-sm mt-1">Real-time monitoring and control</p>
         </div>
         
         <div className="flex items-center gap-3">
@@ -344,8 +344,8 @@ export function Dashboard() {
             className={cn(
               "flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200",
               monitorsRunning
-                ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/20"
-                : "bg-zinc-800 text-zinc-300 border border-zinc-700 hover:border-cyan-500/50 hover:text-cyan-400"
+                ? "bg-[var(--info)]/10 text-[var(--info)] border border-[var(--info)]/30 hover:bg-[var(--info)]/10"
+                : "bg-[var(--surface2)] text-[var(--muted)] border border-[var(--border)] hover:border-[var(--info)]/30 hover:text-[var(--info)]"
             )}
           >
             {loading ? (
@@ -365,7 +365,7 @@ export function Dashboard() {
             className={cn(
               "flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200",
               isRunning
-                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20"
+                ? "bg-[var(--primary)]/10 text-[var(--primary)] border border-moss-500/30 hover:bg-[var(--primary)]/10"
                 : "btn-primary"
             )}
           >
@@ -388,7 +388,7 @@ export function Dashboard() {
           value={stats.totalProductsFound}
           subtitle="Total detections"
           icon={ShoppingBag}
-          color="purple"
+          color="moss"
         />
         <StatCard
           title="High Priority"
@@ -402,7 +402,7 @@ export function Dashboard() {
           value={stats.checkouts}
           subtitle="Successful orders"
           icon={DollarSign}
-          color="cyan"
+          color="moss"
         />
         <StatCard
           title="Declines"

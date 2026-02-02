@@ -11,19 +11,19 @@ import {
 } from 'lucide-react'
 import { cn, formatPrice } from '../lib/utils'
 
-function StatCard({ title, value, change, icon: Icon, prefix = '', color = 'purple' }: {
+function StatCard({ title, value, change, icon: Icon, prefix = '', color = 'moss' }: {
   title: string
   value: number
   change?: number
   icon: any
   prefix?: string
-  color?: 'purple' | 'green' | 'red' | 'cyan'
+  color?: 'moss' | 'green' | 'red' | 'moss'
 }) {
   const colors = {
-    purple: 'from-purple-500/20 to-violet-500/10 border-purple-500/30 text-purple-400',
-    green: 'from-green-500/20 to-emerald-500/10 border-green-500/30 text-green-400',
+    moss: 'from-moss-500/20 to-moss-500/10 border-moss-500/30 text-moss-400',
+    green: 'from-green-500/20 to-[var(--primary)]/10 border-green-500/30 text-green-400',
     red: 'from-red-500/20 to-rose-500/10 border-red-500/30 text-red-400',
-    cyan: 'from-cyan-500/20 to-blue-500/10 border-cyan-500/30 text-cyan-400',
+    moss: 'from-[var(--info)]/20 to-blue-500/10 border-[var(--info)]/30 text-[var(--info)]',
   }
   
   return (
@@ -40,13 +40,13 @@ function StatCard({ title, value, change, icon: Icon, prefix = '', color = 'purp
           </div>
         )}
       </div>
-      <p className="text-3xl font-bold text-white">{prefix}{value.toLocaleString()}</p>
-      <p className="text-sm text-gray-400 mt-1">{title}</p>
+      <p className="text-3xl font-bold text-[var(--text)]">{prefix}{value.toLocaleString()}</p>
+      <p className="text-sm text-[var(--muted)] mt-1">{title}</p>
     </div>
   )
 }
 
-function MiniChart({ data, color = '#8b5cf6' }: { data: number[]; color?: string }) {
+function MiniChart({ data, color = '#6A7B4E' }: { data: number[]; color?: string }) {
   const max = Math.max(...data, 1)
   const min = Math.min(...data, 0)
   const range = max - min || 1
@@ -70,20 +70,20 @@ function MiniChart({ data, color = '#8b5cf6' }: { data: number[]; color?: string
 
 function SitePerformance({ sites }: { sites: { name: string; checkouts: number; declines: number; successRate: number }[] }) {
   return (
-    <div className="bg-[#0f0f18] border border-[#1a1a2e] rounded-xl p-5">
-      <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-        <Target className="w-5 h-5 text-purple-400" />
+    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5">
+      <h3 className="font-semibold text-[var(--text)] mb-4 flex items-center gap-2">
+        <Target className="w-5 h-5 text-moss-400" />
         Site Performance
       </h3>
       
       <div className="space-y-3">
         {sites.map((site, i) => (
           <div key={i} className="flex items-center gap-4">
-            <div className="w-32 text-sm text-white font-medium truncate">{site.name}</div>
+            <div className="w-32 text-sm text-[var(--text)] font-medium truncate">{site.name}</div>
             <div className="flex-1">
-              <div className="h-2 bg-[#1a1a24] rounded-full overflow-hidden">
+              <div className="h-2 bg-[var(--surface2)] rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full transition-all"
+                  className="h-full bg-gradient-to-r from-green-500 to-moss-400 rounded-full transition-all"
                   style={{ width: `${site.successRate}%` }}
                 />
               </div>
@@ -91,7 +91,7 @@ function SitePerformance({ sites }: { sites: { name: string; checkouts: number; 
             <div className="w-20 text-right">
               <span className="text-sm font-medium text-green-400">{site.successRate}%</span>
             </div>
-            <div className="w-24 text-right text-sm text-gray-500">
+            <div className="w-24 text-right text-sm text-[var(--muted)]">
               {site.checkouts}/{site.checkouts + site.declines}
             </div>
           </div>
@@ -103,22 +103,22 @@ function SitePerformance({ sites }: { sites: { name: string; checkouts: number; 
 
 function RecentActivity({ activity }: { activity: { type: string; product: string; site: string; time: string; profit?: number }[] }) {
   return (
-    <div className="bg-[#0f0f18] border border-[#1a1a2e] rounded-xl p-5">
-      <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-        <Calendar className="w-5 h-5 text-cyan-400" />
+    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5">
+      <h3 className="font-semibold text-[var(--text)] mb-4 flex items-center gap-2">
+        <Calendar className="w-5 h-5 text-[var(--info)]" />
         Recent Activity
       </h3>
       
       <div className="space-y-3">
         {activity.map((item, i) => (
-          <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-[#1a1a24]">
+          <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-[var(--surface2)]">
             <div className={cn(
               "w-2 h-2 rounded-full",
               item.type === 'checkout' ? "bg-green-500" : "bg-red-500"
             )} />
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-white truncate">{item.product}</p>
-              <p className="text-xs text-gray-500">{item.site} • {item.time}</p>
+              <p className="text-sm text-[var(--text)] truncate">{item.product}</p>
+              <p className="text-xs text-[var(--muted)]">{item.site} • {item.time}</p>
             </div>
             {item.profit && (
               <span className="text-sm font-medium text-green-400">+{formatPrice(item.profit)}</span>
@@ -163,16 +163,16 @@ export function Analytics() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <BarChart3 className="w-7 h-7 text-purple-400" />
+          <h1 className="text-2xl font-bold text-[var(--text)] flex items-center gap-3">
+            <BarChart3 className="w-7 h-7 text-moss-400" />
             Analytics
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-[var(--muted)] text-sm mt-1">
             Track your performance and profits
           </p>
         </div>
         
-        <div className="flex items-center gap-1 p-1 bg-[#0f0f18] rounded-lg border border-[#1a1a2e]">
+        <div className="flex items-center gap-1 p-1 bg-[var(--surface)] rounded-lg border border-[var(--border)]">
           {(['today', 'week', 'month', 'all'] as const).map((range) => (
             <button
               key={range}
@@ -180,8 +180,8 @@ export function Analytics() {
               className={cn(
                 "px-4 py-1.5 text-sm font-medium rounded-md transition-colors capitalize",
                 timeRange === range
-                  ? "bg-purple-500/20 text-purple-400"
-                  : "text-gray-400 hover:text-white"
+                  ? "bg-moss-500/20 text-moss-400"
+                  : "text-[var(--muted)] hover:text-[var(--text)]"
               )}
             >
               {range === 'all' ? 'All Time' : range}
@@ -205,7 +205,7 @@ export function Analytics() {
           change={5}
           icon={Target}
           prefix=""
-          color="cyan"
+          color="moss"
         />
         <StatCard
           title="Total Revenue"
@@ -213,7 +213,7 @@ export function Analytics() {
           change={18}
           icon={DollarSign}
           prefix="$"
-          color="purple"
+          color="moss"
         />
         <StatCard
           title="Total Profit"
@@ -228,22 +228,22 @@ export function Analytics() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Checkout Chart */}
-        <div className="lg:col-span-2 bg-[#0f0f18] border border-[#1a1a2e] rounded-xl p-5">
+        <div className="lg:col-span-2 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-white">Checkouts Over Time</h3>
+            <h3 className="font-semibold text-[var(--text)]">Checkouts Over Time</h3>
             <div className="flex items-center gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded bg-green-500" />
-                <span className="text-gray-400">Success</span>
+                <span className="text-[var(--muted)]">Success</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded bg-red-500" />
-                <span className="text-gray-400">Declined</span>
+                <span className="text-[var(--muted)]">Declined</span>
               </div>
             </div>
           </div>
-          <MiniChart data={dailyData} color="#10b981" />
-          <div className="flex justify-between mt-2 text-xs text-gray-500">
+          <MiniChart data={dailyData} color="var(--primary)" />
+          <div className="flex justify-between mt-2 text-xs text-[var(--muted)]">
             <span>Mon</span>
             <span>Tue</span>
             <span>Wed</span>
@@ -255,42 +255,42 @@ export function Analytics() {
         </div>
         
         {/* Profit Breakdown */}
-        <div className="bg-[#0f0f18] border border-[#1a1a2e] rounded-xl p-5">
-          <h3 className="font-semibold text-white mb-4">Profit Breakdown</h3>
+        <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5">
+          <h3 className="font-semibold text-[var(--text)] mb-4">Profit Breakdown</h3>
           <div className="space-y-4">
             <div>
               <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-400">Jordan</span>
-                <span className="text-white font-medium">$2,450</span>
+                <span className="text-[var(--muted)]">Jordan</span>
+                <span className="text-[var(--text)] font-medium">$2,450</span>
               </div>
-              <div className="h-2 bg-[#1a1a24] rounded-full overflow-hidden">
-                <div className="h-full w-[65%] bg-purple-500 rounded-full" />
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-400">Nike</span>
-                <span className="text-white font-medium">$1,280</span>
-              </div>
-              <div className="h-2 bg-[#1a1a24] rounded-full overflow-hidden">
-                <div className="h-full w-[35%] bg-cyan-500 rounded-full" />
+              <div className="h-2 bg-[var(--surface2)] rounded-full overflow-hidden">
+                <div className="h-full w-[65%] bg-moss-500 rounded-full" />
               </div>
             </div>
             <div>
               <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-400">Yeezy</span>
-                <span className="text-white font-medium">$680</span>
+                <span className="text-[var(--muted)]">Nike</span>
+                <span className="text-[var(--text)] font-medium">$1,280</span>
               </div>
-              <div className="h-2 bg-[#1a1a24] rounded-full overflow-hidden">
+              <div className="h-2 bg-[var(--surface2)] rounded-full overflow-hidden">
+                <div className="h-full w-[35%] bg-[var(--info)] rounded-full" />
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-[var(--muted)]">Yeezy</span>
+                <span className="text-[var(--text)] font-medium">$680</span>
+              </div>
+              <div className="h-2 bg-[var(--surface2)] rounded-full overflow-hidden">
                 <div className="h-full w-[18%] bg-yellow-500 rounded-full" />
               </div>
             </div>
             <div>
               <div className="flex justify-between text-sm mb-1">
-                <span className="text-gray-400">New Balance</span>
-                <span className="text-white font-medium">$420</span>
+                <span className="text-[var(--muted)]">New Balance</span>
+                <span className="text-[var(--text)] font-medium">$420</span>
               </div>
-              <div className="h-2 bg-[#1a1a24] rounded-full overflow-hidden">
+              <div className="h-2 bg-[var(--surface2)] rounded-full overflow-hidden">
                 <div className="h-full w-[12%] bg-green-500 rounded-full" />
               </div>
             </div>

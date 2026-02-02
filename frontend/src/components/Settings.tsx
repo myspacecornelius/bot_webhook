@@ -21,10 +21,10 @@ function SettingSection({ title, description, children }: {
   children: React.ReactNode 
 }) {
   return (
-    <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden">
-      <div className="p-4 border-b border-zinc-800">
-        <h3 className="font-semibold text-white">{title}</h3>
-        {description && <p className="text-sm text-zinc-500 mt-1">{description}</p>}
+    <div className="bg-[var(--surface2)] border border-[var(--border)] rounded-xl overflow-hidden">
+      <div className="p-4 border-b border-[var(--border)]">
+        <h3 className="font-semibold text-[var(--text)]">{title}</h3>
+        {description && <p className="text-sm text-[var(--muted)] mt-1">{description}</p>}
       </div>
       <div className="p-4">
         {children}
@@ -36,12 +36,12 @@ function SettingSection({ title, description, children }: {
 function Toggle({ enabled, onChange, label }: { enabled: boolean; onChange: (v: boolean) => void; label: string }) {
   return (
     <div className="flex items-center justify-between py-2">
-      <span className="text-sm text-zinc-300">{label}</span>
+      <span className="text-sm text-[var(--muted)]">{label}</span>
       <button
         onClick={() => onChange(!enabled)}
         className={cn(
           "w-11 h-6 rounded-full transition-colors relative",
-          enabled ? "bg-purple-600" : "bg-zinc-700"
+          enabled ? "bg-moss-600" : "bg-[var(--surface2)]"
         )}
         role="switch"
         aria-checked={enabled ? "true" : "false"}
@@ -65,7 +65,7 @@ function InputField({ label, value, onChange, type = 'text', placeholder = '' }:
 }) {
   return (
     <div className="mb-4">
-      <label className="block text-sm text-zinc-400 mb-2">{label}</label>
+      <label className="block text-sm text-[var(--muted)] mb-2">{label}</label>
       <input
         type={type}
         value={value}
@@ -147,8 +147,8 @@ export function Settings() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Settings</h1>
-          <p className="text-zinc-500 text-sm mt-1">Configure your bot preferences</p>
+          <h1 className="text-2xl font-bold text-[var(--text)] tracking-tight">Settings</h1>
+          <p className="text-[var(--muted)] text-sm mt-1">Configure your bot preferences</p>
         </div>
         
         <button
@@ -181,8 +181,8 @@ export function Settings() {
             />
           </div>
           
-          <div className="pt-4 border-t border-zinc-800">
-            <div className="flex items-center gap-2 text-sm text-purple-400 mb-3">
+          <div className="pt-4 border-t border-[var(--border)]">
+            <div className="flex items-center gap-2 text-sm text-moss-400 mb-3">
               <Bell className="w-4 h-4" />
               Discord Webhooks
             </div>
@@ -219,28 +219,28 @@ export function Settings() {
           />
           
           {/* Captcha Balances */}
-          <div className="pt-4 border-t border-zinc-800 mt-4">
-            <div className="flex items-center gap-2 text-sm text-purple-400 mb-3">
+          <div className="pt-4 border-t border-[var(--border)] mt-4">
+            <div className="flex items-center gap-2 text-sm text-moss-400 mb-3">
               <Wallet className="w-4 h-4" />
               Account Balances
             </div>
             <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="p-3 rounded-lg bg-zinc-800/50 border border-zinc-700">
-                <p className="text-xs text-zinc-500 mb-1">2Captcha</p>
+              <div className="p-3 rounded-lg bg-[var(--surface2)] border border-[var(--border)]">
+                <p className="text-xs text-[var(--muted)] mb-1">2Captcha</p>
                 {loadingBalances ? (
-                  <Loader2 className="w-4 h-4 animate-spin text-zinc-400" />
+                  <Loader2 className="w-4 h-4 animate-spin text-[var(--muted)]" />
                 ) : (
-                  <p className="text-lg font-bold text-white">
+                  <p className="text-lg font-bold text-[var(--text)]">
                     ${captchaBalances?.twocaptcha?.toFixed(2) ?? '—'}
                   </p>
                 )}
               </div>
-              <div className="p-3 rounded-lg bg-zinc-800/50 border border-zinc-700">
-                <p className="text-xs text-zinc-500 mb-1">CapMonster</p>
+              <div className="p-3 rounded-lg bg-[var(--surface2)] border border-[var(--border)]">
+                <p className="text-xs text-[var(--muted)] mb-1">CapMonster</p>
                 {loadingBalances ? (
-                  <Loader2 className="w-4 h-4 animate-spin text-zinc-400" />
+                  <Loader2 className="w-4 h-4 animate-spin text-[var(--muted)]" />
                 ) : (
-                  <p className="text-lg font-bold text-white">
+                  <p className="text-lg font-bold text-[var(--text)]">
                     ${captchaBalances?.capmonster?.toFixed(2) ?? '—'}
                   </p>
                 )}
@@ -248,8 +248,8 @@ export function Settings() {
             </div>
           </div>
           
-          <div className="pt-4 border-t border-zinc-800">
-            <div className="flex items-center gap-2 text-sm text-purple-400 mb-3">
+          <div className="pt-4 border-t border-[var(--border)]">
+            <div className="flex items-center gap-2 text-sm text-moss-400 mb-3">
               <Key className="w-4 h-4" />
               API Keys
             </div>
@@ -277,46 +277,46 @@ export function Settings() {
         >
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-2">Max Concurrent Tasks</label>
+              <label className="block text-sm text-[var(--muted)] mb-2">Max Concurrent Tasks</label>
               <input
                 type="number"
                 value={settings.maxConcurrentTasks}
                 onChange={(e) => updateSetting('maxConcurrentTasks', parseInt(e.target.value) || 50)}
-                className="w-full px-4 py-2.5 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white focus:outline-none focus:border-purple-500"
+                className="w-full px-4 py-2.5 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] focus:outline-none focus:border-moss-500"
                 min="1"
                 max="100"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-2">Checkout Timeout (s)</label>
+              <label className="block text-sm text-[var(--muted)] mb-2">Checkout Timeout (s)</label>
               <input
                 type="number"
                 value={settings.checkoutTimeout}
                 onChange={(e) => updateSetting('checkoutTimeout', parseInt(e.target.value) || 60)}
-                className="w-full px-4 py-2.5 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white focus:outline-none focus:border-purple-500"
+                className="w-full px-4 py-2.5 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] focus:outline-none focus:border-moss-500"
                 min="10"
                 max="300"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-2">Monitor Delay (ms)</label>
+              <label className="block text-sm text-[var(--muted)] mb-2">Monitor Delay (ms)</label>
               <input
                 type="number"
                 value={settings.monitorDelay}
                 onChange={(e) => updateSetting('monitorDelay', parseInt(e.target.value) || 3000)}
-                className="w-full px-4 py-2.5 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white focus:outline-none focus:border-purple-500"
+                className="w-full px-4 py-2.5 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] focus:outline-none focus:border-moss-500"
                 min="500"
                 max="10000"
                 step="500"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-2">Retry Delay (ms)</label>
+              <label className="block text-sm text-[var(--muted)] mb-2">Retry Delay (ms)</label>
               <input
                 type="number"
                 value={settings.retryDelay}
                 onChange={(e) => updateSetting('retryDelay', parseInt(e.target.value) || 2000)}
-                className="w-full px-4 py-2.5 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white focus:outline-none focus:border-purple-500"
+                className="w-full px-4 py-2.5 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] focus:outline-none focus:border-moss-500"
                 min="500"
                 max="10000"
                 step="500"
@@ -360,11 +360,11 @@ export function Settings() {
           description="Import, export, and manage your data"
         >
           <div className="flex flex-wrap gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 bg-[#1a1a24] text-gray-300 border border-[#2a2a3a] rounded-lg hover:border-purple-500/50 transition-colors">
+            <button className="flex items-center gap-2 px-4 py-2 bg-[var(--surface2)] text-[var(--muted)] border border-[var(--border)] rounded-lg hover:border-moss-500/50 transition-colors">
               <Upload className="w-4 h-4" />
               Import Data
             </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-[#1a1a24] text-gray-300 border border-[#2a2a3a] rounded-lg hover:border-purple-500/50 transition-colors">
+            <button className="flex items-center gap-2 px-4 py-2 bg-[var(--surface2)] text-[var(--muted)] border border-[var(--border)] rounded-lg hover:border-moss-500/50 transition-colors">
               <Download className="w-4 h-4" />
               Export Data
             </button>
@@ -386,8 +386,8 @@ export function Settings() {
               className={cn(
                 "flex items-center gap-2 px-4 py-3 rounded-lg border transition-colors",
                 settings.darkMode 
-                  ? "bg-purple-500/20 border-purple-500/50 text-purple-400" 
-                  : "bg-[#1a1a24] border-[#2a2a3a] text-gray-400"
+                  ? "bg-moss-500/20 border-moss-500/50 text-moss-400" 
+                  : "bg-[var(--surface2)] border-[var(--border)] text-[var(--muted)]"
               )}
             >
               <Moon className="w-5 h-5" />
@@ -398,8 +398,8 @@ export function Settings() {
               className={cn(
                 "flex items-center gap-2 px-4 py-3 rounded-lg border transition-colors",
                 !settings.darkMode 
-                  ? "bg-purple-500/20 border-purple-500/50 text-purple-400" 
-                  : "bg-[#1a1a24] border-[#2a2a3a] text-gray-400"
+                  ? "bg-moss-500/20 border-moss-500/50 text-moss-400" 
+                  : "bg-[var(--surface2)] border-[var(--border)] text-[var(--muted)]"
               )}
             >
               <Sun className="w-5 h-5" />

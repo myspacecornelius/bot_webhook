@@ -34,25 +34,25 @@ export function StealthMode() {
         className={cn(
           "fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-2xl transition-all duration-300",
           isStealthActive
-            ? "bg-purple-600 hover:bg-purple-500 animate-pulse"
-            : "bg-[#1a1a24] hover:bg-[#2a2a3a] border border-[#2a2a3a]"
+            ? "bg-moss-600 hover:bg-moss-500 animate-pulse"
+            : "bg-[var(--surface2)] hover:bg-[var(--surface2)] border border-[var(--border)]"
         )}
         title={isStealthActive ? "Stealth Mode Active (Press ESC)" : "Activate Stealth Mode (Press ESC)"}
       >
         {isStealthActive ? (
-          <EyeOff className="w-6 h-6 text-white" />
+          <EyeOff className="w-6 h-6 text-[var(--text)]" />
         ) : (
-          <Eye className="w-6 h-6 text-gray-400" />
+          <Eye className="w-6 h-6 text-[var(--muted)]" />
         )}
       </button>
       
       {/* Stealth Mode Overlay */}
       {isStealthActive && (
         <div className="fixed inset-0 z-40 pointer-events-none">
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 px-6 py-3 bg-purple-600 text-white rounded-full shadow-2xl flex items-center gap-3 animate-fade-in">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 px-6 py-3 bg-moss-600 text-[var(--text)] rounded-full shadow-2xl flex items-center gap-3 animate-fade-in">
             <Shield className="w-5 h-5" />
             <span className="font-semibold">Stealth Mode Active</span>
-            <kbd className="px-2 py-1 bg-purple-700 rounded text-xs">ESC</kbd>
+            <kbd className="px-2 py-1 bg-moss-700 rounded text-xs">ESC</kbd>
           </div>
         </div>
       )}
