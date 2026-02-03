@@ -776,3 +776,23 @@ async def broadcast_monitor_event(event_data: dict):
         "type": "monitor_event",
         "data": event_data
     })
+
+
+def setup_websocket_broadcasts():
+    """
+    Setup WebSocket broadcast integration with monitor events.
+    Called from main.py after app is created to wire up real-time updates.
+    """
+    from ..monitors.manager import monitor_manager
+    
+    try:
+        # Register the broadcast callback if monitor_manager has event hooks
+        if hasattr(monitor_manager, 'on_event'):
+            async def broadcast_wrapper(event):
+                await broadcast_monitor_event(event)
+            monitor_manager.on_event = broadcast_wrapper
+            logger.info("WebSocket broadcasts configured for monitor events")
+        else:
+            logger.debug("Monitor manager does not support event hooks yet")
+    except Exception as e:
+        logger.warning(f"Could not setup WebSocket broadcasts: {e}")
