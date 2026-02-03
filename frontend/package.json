@@ -1,15 +1,22 @@
 {
-  "name": "frontend",
+  "name": "phantom-bot",
+  "productName": "Phantom Bot",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "1.0.0",
+  "description": "Advanced Sneaker Automation Suite",
+  "author": "Phantom Team",
+  "main": "electron/main.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron:dev": "electron ../electron/main.js",
+    "electron:build": "npm run build && electron-builder"
   },
   "dependencies": {
+    "@stripe/stripe-js": "^8.7.0",
+    "@supabase/supabase-js": "^2.93.3",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-query": "^5.90.19",
     "autoprefixer": "^10.4.23",
@@ -22,6 +29,7 @@
     "postcss": "^8.5.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-window": "^2.2.5",
     "recharts": "^3.6.0",
     "socket.io-client": "^4.8.3",
     "tailwind-merge": "^3.4.0",
@@ -34,6 +42,9 @@
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
+    "electron": "^40.1.0",
+    "electron-builder": "^26.4.0",
+    "electron-updater": "^6.7.3",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
@@ -44,5 +55,52 @@
   },
   "overrides": {
     "vite": "npm:rolldown-vite@7.2.5"
+  },
+  "build": {
+    "appId": "com.phantom.bot",
+    "productName": "Phantom Bot",
+    "directories": {
+      "output": "../dist-electron",
+      "buildResources": "../electron/assets"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../python-dist",
+        "to": "python",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": [
+        "dir"
+      ],
+      "identity": null
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "../electron/assets/icon.ico"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "phantom-bot",
+      "repo": "phantom-bot"
+    }
   }
 }

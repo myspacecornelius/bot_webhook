@@ -125,6 +125,10 @@ async def run_server(host: str, port: int):
     
     app = create_app()
     
+    # Setup WebSocket broadcasts for real-time updates
+    from phantom.api.routes import setup_websocket_broadcasts
+    setup_websocket_broadcasts()
+    
     config = uvicorn.Config(app, host=host, port=port, log_level="info")
     server = uvicorn.Server(config)
     
@@ -145,8 +149,8 @@ def main():
     )
     parser.add_argument(
         "--host",
-        default="127.0.0.1",
-        help="Server host (default: 127.0.0.1)"
+        default="0.0.0.0",
+        help="Server host (default: 0.0.0.0)"
     )
     parser.add_argument(
         "--port",

