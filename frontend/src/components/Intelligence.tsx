@@ -1,11 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { 
   TrendingUp, 
   Search,
-  DollarSign,
-  Calendar,
-  Star,
-  ExternalLink,
   RefreshCw,
   Flame,
   Tag
@@ -36,16 +32,16 @@ interface ResearchResult {
 }
 
 function ProductCard({ product }: { product: TrendingProduct }) {
-  const profitColor = product.profit >= 100 ? 'text-green-400' : product.profit >= 30 ? 'text-yellow-400' : 'text-gray-400'
+  const profitColor = product.profit >= 100 ? 'text-green-400' : product.profit >= 30 ? 'text-yellow-400' : 'text-[var(--muted)]'
   
   return (
-    <div className="bg-[#0f0f18] border border-[#1a1a2e] rounded-xl p-4 hover:border-purple-500/30 transition-all">
+    <div className="bg-[var(--surface)] border border-[var(--border)] rounded-xl p-4 hover:border-moss-500/30 transition-all">
       <div className="flex items-start gap-4">
-        <div className="w-20 h-20 rounded-lg bg-[#1a1a24] flex items-center justify-center overflow-hidden">
+        <div className="w-20 h-20 rounded-lg bg-[var(--surface2)] flex items-center justify-center overflow-hidden">
           {product.imageUrl ? (
             <img src={product.imageUrl} alt="" className="w-full h-full object-cover" />
           ) : (
-            <Tag className="w-8 h-8 text-gray-600" />
+            <Tag className="w-8 h-8 text-[var(--muted)]" />
           )}
         </div>
         
@@ -56,27 +52,27 @@ function ProductCard({ product }: { product: TrendingProduct }) {
                 <Flame className="w-3 h-3" /> Hyped
               </span>
             )}
-            <span className="px-2 py-0.5 text-xs bg-purple-500/20 text-purple-400 rounded">
+            <span className="px-2 py-0.5 text-xs bg-moss-500/20 text-moss-400 rounded">
               {product.brand}
             </span>
           </div>
-          <h3 className="font-medium text-white truncate">{product.name}</h3>
-          <p className="text-xs text-gray-500">{product.sku}</p>
+          <h3 className="font-medium text-[var(--text)] truncate">{product.name}</h3>
+          <p className="text-xs text-[var(--muted)]">{product.sku}</p>
         </div>
       </div>
       
       <div className="grid grid-cols-3 gap-2 mt-4">
-        <div className="p-2 rounded-lg bg-[#1a1a24] text-center">
-          <p className="text-sm font-bold text-white">{formatPrice(product.retailPrice)}</p>
-          <p className="text-xs text-gray-500">Retail</p>
+        <div className="p-2 rounded-lg bg-[var(--surface2)] text-center">
+          <p className="text-sm font-bold text-[var(--text)]">{formatPrice(product.retailPrice)}</p>
+          <p className="text-xs text-[var(--muted)]">Retail</p>
         </div>
-        <div className="p-2 rounded-lg bg-[#1a1a24] text-center">
-          <p className="text-sm font-bold text-cyan-400">{formatPrice(product.resellPrice)}</p>
-          <p className="text-xs text-gray-500">Resell</p>
+        <div className="p-2 rounded-lg bg-[var(--surface2)] text-center">
+          <p className="text-sm font-bold text-[var(--info)]">{formatPrice(product.resellPrice)}</p>
+          <p className="text-xs text-[var(--muted)]">Resell</p>
         </div>
-        <div className="p-2 rounded-lg bg-[#1a1a24] text-center">
+        <div className="p-2 rounded-lg bg-[var(--surface2)] text-center">
           <p className={cn("text-sm font-bold", profitColor)}>+{formatPrice(product.profit)}</p>
-          <p className="text-xs text-gray-500">Profit</p>
+          <p className="text-xs text-[var(--muted)]">Profit</p>
         </div>
       </div>
     </div>
@@ -87,25 +83,25 @@ function ResearchPanel({ result, onClose }: { result: ResearchResult | null; onC
   if (!result) return null
   
   return (
-    <div className="bg-[#0f0f18] border border-purple-500/30 rounded-xl p-5">
+    <div className="bg-[var(--surface)] border border-moss-500/30 rounded-xl p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-white">Research Results</h3>
-        <button onClick={onClose} className="text-gray-500 hover:text-white text-sm">
+        <h3 className="font-semibold text-[var(--text)]">Research Results</h3>
+        <button onClick={onClose} className="text-[var(--muted)] hover:text-[var(--text)] text-sm">
           Clear
         </button>
       </div>
       
       <div className="space-y-4">
         <div>
-          <p className="text-sm text-gray-400 mb-2">Product</p>
-          <p className="text-white font-medium">{result.name}</p>
-          <p className="text-xs text-gray-500">{result.sku}</p>
+          <p className="text-sm text-[var(--muted)] mb-2">Product</p>
+          <p className="text-[var(--text)] font-medium">{result.name}</p>
+          <p className="text-xs text-[var(--muted)]">{result.sku}</p>
         </div>
         
         <div>
-          <p className="text-sm text-gray-400 mb-2">Hype Score</p>
+          <p className="text-sm text-[var(--muted)] mb-2">Hype Score</p>
           <div className="flex items-center gap-2">
-            <div className="flex-1 h-2 bg-[#1a1a24] rounded-full overflow-hidden">
+            <div className="flex-1 h-2 bg-[var(--surface2)] rounded-full overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full"
                 style={{ width: `${result.hyped}%` }}
@@ -116,15 +112,15 @@ function ResearchPanel({ result, onClose }: { result: ResearchResult | null; onC
         </div>
         
         <div>
-          <p className="text-sm text-gray-400 mb-2">Estimated Profit</p>
+          <p className="text-sm text-[var(--muted)] mb-2">Estimated Profit</p>
           <p className="text-2xl font-bold text-green-400">+{formatPrice(result.estimatedProfit)}</p>
         </div>
         
         <div>
-          <p className="text-sm text-gray-400 mb-2">Recommended Keywords</p>
+          <p className="text-sm text-[var(--muted)] mb-2">Recommended Keywords</p>
           <div className="flex flex-wrap gap-1">
             {result.keywords.map((kw, i) => (
-              <span key={i} className="px-2 py-1 text-xs bg-[#1a1a24] text-gray-300 rounded">
+              <span key={i} className="px-2 py-1 text-xs bg-[var(--surface2)] text-[var(--muted)] rounded">
                 {kw}
               </span>
             ))}
@@ -132,10 +128,10 @@ function ResearchPanel({ result, onClose }: { result: ResearchResult | null; onC
         </div>
         
         <div>
-          <p className="text-sm text-gray-400 mb-2">Recommended Sites</p>
+          <p className="text-sm text-[var(--muted)] mb-2">Recommended Sites</p>
           <div className="flex flex-wrap gap-1">
             {result.recommendedSites.map((site, i) => (
-              <span key={i} className="px-2 py-1 text-xs bg-purple-500/20 text-purple-400 rounded">
+              <span key={i} className="px-2 py-1 text-xs bg-moss-500/20 text-moss-400 rounded">
                 {site}
               </span>
             ))}
@@ -250,11 +246,11 @@ export function Intelligence() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-[var(--text)] flex items-center gap-3">
             <TrendingUp className="w-7 h-7 text-green-400" />
             Market Intelligence
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-[var(--muted)] text-sm mt-1">
             Research products and track market trends
           </p>
         </div>
@@ -262,9 +258,9 @@ export function Intelligence() {
       
       {/* Research Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div className="lg:col-span-2 bg-[#0f0f18] border border-[#1a1a2e] rounded-xl p-5">
-          <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
-            <Search className="w-5 h-5 text-purple-400" />
+        <div className="lg:col-span-2 bg-[var(--surface)] border border-[var(--border)] rounded-xl p-5">
+          <h3 className="font-semibold text-[var(--text)] mb-4 flex items-center gap-2">
+            <Search className="w-5 h-5 text-moss-400" />
             Product Research
           </h3>
           
@@ -274,7 +270,7 @@ export function Intelligence() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2.5 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                className="w-full px-4 py-2.5 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-gray-500 focus:outline-none focus:border-moss-500"
                 placeholder="Product name (e.g., Jordan 4 Black Cat)"
               />
             </div>
@@ -282,7 +278,7 @@ export function Intelligence() {
               type="text"
               value={searchSku}
               onChange={(e) => setSearchSku(e.target.value)}
-              className="w-full px-4 py-2.5 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+              className="w-full px-4 py-2.5 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-gray-500 focus:outline-none focus:border-moss-500"
               placeholder="SKU (optional)"
             />
           </div>
@@ -292,13 +288,13 @@ export function Intelligence() {
               type="number"
               value={searchPrice}
               onChange={(e) => setSearchPrice(e.target.value)}
-              className="w-32 px-4 py-2.5 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+              className="w-32 px-4 py-2.5 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-gray-500 focus:outline-none focus:border-moss-500"
               placeholder="Retail $"
             />
             <button
               onClick={handleResearch}
               disabled={loading || !searchQuery}
-              className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white font-medium rounded-lg transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 bg-moss-600 hover:bg-moss-500 disabled:opacity-50 text-[var(--text)] font-medium rounded-lg transition-colors"
             >
               {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
               Research
@@ -311,7 +307,7 @@ export function Intelligence() {
       
       {/* Trending Products */}
       <div>
-        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+        <h2 className="text-lg font-semibold text-[var(--text)] mb-4 flex items-center gap-2">
           <Flame className="w-5 h-5 text-orange-400" />
           Trending Products
         </h2>

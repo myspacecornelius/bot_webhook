@@ -51,20 +51,20 @@ function StoreCard({
     <div className={cn(
       "p-4 rounded-xl border transition-all",
       enabled 
-        ? "bg-[#0f0f18] border-purple-500/30" 
-        : "bg-[#0a0a0f] border-[#1a1a2e] opacity-60"
+        ? "bg-[var(--surface)] border-moss-500/30" 
+        : "bg-[var(--bg)] border-[var(--border)] opacity-60"
     )}>
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
           <div className={cn(
             "w-10 h-10 rounded-lg flex items-center justify-center",
-            enabled ? "bg-purple-500/20" : "bg-[#1a1a24]"
+            enabled ? "bg-moss-500/20" : "bg-[var(--surface2)]"
           )}>
-            <Store className={cn("w-5 h-5", enabled ? "text-purple-400" : "text-gray-600")} />
+            <Store className={cn("w-5 h-5", enabled ? "text-moss-400" : "text-[var(--muted)]")} />
           </div>
           <div>
-            <h3 className="font-medium text-white">{name}</h3>
-            <p className="text-xs text-gray-500 truncate max-w-[150px]">{url}</p>
+            <h3 className="font-medium text-[var(--text)]">{name}</h3>
+            <p className="text-xs text-[var(--muted)] truncate max-w-[150px]">{url}</p>
           </div>
         </div>
         
@@ -75,7 +75,7 @@ function StoreCard({
           aria-label={`Toggle ${name} monitoring`}
           className={cn(
             "w-12 h-6 rounded-full transition-colors relative",
-            enabled ? "bg-purple-600" : "bg-[#2a2a3a]"
+            enabled ? "bg-moss-600" : "bg-[var(--surface2)]"
           )}
         >
           <div className={cn(
@@ -87,25 +87,25 @@ function StoreCard({
       
       {enabled && stats && (
         <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="p-2 rounded-lg bg-[#1a1a24]">
-            <p className="text-lg font-bold text-white">{stats.productsFound}</p>
-            <p className="text-xs text-gray-500">Found</p>
+          <div className="p-2 rounded-lg bg-[var(--surface2)]">
+            <p className="text-lg font-bold text-[var(--text)]">{stats.productsFound}</p>
+            <p className="text-xs text-[var(--muted)]">Found</p>
           </div>
-          <div className="p-2 rounded-lg bg-[#1a1a24]">
+          <div className="p-2 rounded-lg bg-[var(--surface2)]">
             <p className="text-lg font-bold text-green-400">{stats.successCount}</p>
-            <p className="text-xs text-gray-500">Success</p>
+            <p className="text-xs text-[var(--muted)]">Success</p>
           </div>
-          <div className="p-2 rounded-lg bg-[#1a1a24]">
-            <p className={cn("text-lg font-bold", stats.errorCount > 0 ? "text-red-400" : "text-gray-400")}>
+          <div className="p-2 rounded-lg bg-[var(--surface2)]">
+            <p className={cn("text-lg font-bold", stats.errorCount > 0 ? "text-red-400" : "text-[var(--muted)]")}>
               {stats.errorCount}
             </p>
-            <p className="text-xs text-gray-500">Errors</p>
+            <p className="text-xs text-[var(--muted)]">Errors</p>
           </div>
         </div>
       )}
       
       {enabled && stats?.lastCheck && (
-        <p className="text-xs text-gray-500 mt-2 text-center">
+        <p className="text-xs text-[var(--muted)] mt-2 text-center">
           Last check: {formatRelativeTime(stats.lastCheck)}
         </p>
       )}
@@ -188,11 +188,11 @@ export function Monitors() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <Radio className="w-7 h-7 text-cyan-400" />
+          <h1 className="text-2xl font-bold text-[var(--text)] flex items-center gap-3">
+            <Radio className="w-7 h-7 text-[var(--info)]" />
             Monitor Configuration
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-[var(--muted)] text-sm mt-1">
             Configure stores and sites to monitor for products
           </p>
         </div>
@@ -205,7 +205,7 @@ export function Monitors() {
               "flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all",
               monitorsRunning
                 ? "bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30"
-                : "bg-cyan-600 text-white hover:bg-cyan-500"
+                : "bg-[var(--info)] text-[var(--text)] hover:bg-[var(--primary)]"
             )}
           >
             {loading ? (
@@ -221,15 +221,15 @@ export function Monitors() {
       </div>
       
       {/* Target Sizes */}
-      <div className="mb-6 p-4 rounded-xl bg-[#0f0f18] border border-[#1a1a2e]">
-        <label className="block text-sm font-medium text-gray-300 mb-2">
+      <div className="mb-6 p-4 rounded-xl bg-[var(--surface)] border border-[var(--border)]">
+        <label className="block text-sm font-medium text-[var(--muted)] mb-2">
           Target Sizes (comma separated)
         </label>
         <input
           type="text"
           value={targetSizes}
           onChange={(e) => setTargetSizes(e.target.value)}
-          className="w-full px-4 py-2 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+          className="w-full px-4 py-2 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-gray-500 focus:outline-none focus:border-moss-500"
           placeholder="10, 10.5, 11, 11.5, 12"
         />
       </div>
@@ -237,13 +237,13 @@ export function Monitors() {
       {/* Shopify Stores */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-            <Store className="w-5 h-5 text-purple-400" />
+          <h2 className="text-lg font-semibold text-[var(--text)] flex items-center gap-2">
+            <Store className="w-5 h-5 text-moss-400" />
             Shopify Stores
           </h2>
           <button
             onClick={() => setShowAddStore(true)}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-purple-500/20 text-purple-400 rounded-lg hover:bg-purple-500/30 transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-moss-500/20 text-moss-400 rounded-lg hover:bg-moss-500/30 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Add Store
@@ -251,33 +251,33 @@ export function Monitors() {
         </div>
         
         {showAddStore && (
-          <div className="mb-4 p-4 rounded-xl bg-[#0f0f18] border border-purple-500/30">
+          <div className="mb-4 p-4 rounded-xl bg-[var(--surface)] border border-moss-500/30">
             <div className="grid grid-cols-2 gap-4 mb-3">
               <input
                 type="text"
                 value={newStore.name}
                 onChange={(e) => setNewStore({ ...newStore, name: e.target.value })}
-                className="px-3 py-2 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                className="px-3 py-2 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-gray-500 focus:outline-none focus:border-moss-500"
                 placeholder="Store Name"
               />
               <input
                 type="text"
                 value={newStore.url}
                 onChange={(e) => setNewStore({ ...newStore, url: e.target.value })}
-                className="px-3 py-2 bg-[#1a1a24] border border-[#2a2a3a] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                className="px-3 py-2 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-gray-500 focus:outline-none focus:border-moss-500"
                 placeholder="https://store.com"
               />
             </div>
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setShowAddStore(false)}
-                className="px-3 py-1.5 text-sm text-gray-400 hover:text-white transition-colors"
+                className="px-3 py-1.5 text-sm text-[var(--muted)] hover:text-[var(--text)] transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={addCustomStore}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-500 transition-colors"
+                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-moss-600 text-[var(--text)] rounded-lg hover:bg-moss-500 transition-colors"
               >
                 <Check className="w-4 h-4" />
                 Add
@@ -302,8 +302,8 @@ export function Monitors() {
       
       {/* Footsites */}
       <div>
-        <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
-          <Globe className="w-5 h-5 text-cyan-400" />
+        <h2 className="text-lg font-semibold text-[var(--text)] flex items-center gap-2 mb-4">
+          <Globe className="w-5 h-5 text-[var(--info)]" />
           Footsites
         </h2>
         
@@ -315,25 +315,25 @@ export function Monitors() {
               className={cn(
                 "p-4 rounded-xl border cursor-pointer transition-all",
                 site.enabled
-                  ? "bg-[#0f0f18] border-cyan-500/30"
-                  : "bg-[#0a0a0f] border-[#1a1a2e] opacity-60"
+                  ? "bg-[var(--surface)] border-[var(--info)]/30"
+                  : "bg-[var(--bg)] border-[var(--border)] opacity-60"
               )}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className={cn(
                     "w-8 h-8 rounded-lg flex items-center justify-center",
-                    site.enabled ? "bg-cyan-500/20" : "bg-[#1a1a24]"
+                    site.enabled ? "bg-[var(--info)]/10" : "bg-[var(--surface2)]"
                   )}>
-                    <Globe className={cn("w-4 h-4", site.enabled ? "text-cyan-400" : "text-gray-600")} />
+                    <Globe className={cn("w-4 h-4", site.enabled ? "text-[var(--info)]" : "text-[var(--muted)]")} />
                   </div>
-                  <span className="font-medium text-white">{site.name}</span>
+                  <span className="font-medium text-[var(--text)]">{site.name}</span>
                 </div>
                 <div className={cn(
                   "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors",
-                  site.enabled ? "border-cyan-500 bg-cyan-500" : "border-gray-600"
+                  site.enabled ? "border-[var(--info)] bg-[var(--info)]" : "border-gray-600"
                 )}>
-                  {site.enabled && <Check className="w-3 h-3 text-white" />}
+                  {site.enabled && <Check className="w-3 h-3 text-[var(--text)]" />}
                 </div>
               </div>
             </div>

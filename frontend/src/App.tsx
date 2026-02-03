@@ -1,20 +1,49 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useStore } from './store/useStore'
 import { api } from './api/client'
 import { Sidebar } from './components/Sidebar'
 import { Dashboard } from './components/Dashboard'
-import { ProductFeed } from './components/ProductFeed'
-import { Monitors } from './components/Monitors'
+import { ProductFeedEnhanced as ProductFeed } from './components/ProductFeedEnhanced'
+import { MonitorsEnhanced as Monitors } from './components/MonitorsEnhanced'
 import { Tasks } from './components/Tasks'
 import { Profiles } from './components/Profiles'
 import { Proxies } from './components/Proxies'
-import { Analytics } from './components/Analytics'
+import { CopCalendar } from './components/CopCalendar'
 import { Intelligence } from './components/Intelligence'
 import { Settings } from './components/Settings'
 import { ToastContainer } from './components/ui/Toast'
+import { SuccessTheater } from './components/SuccessTheater'
+import { StealthMode } from './components/StealthMode'
+import { Login } from './components/Login'
 
 function App() {
   const { selectedTab, setRunning, setMonitorsRunning, setStats } = useStore()
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
+  
+  // Check for existing license on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const license = localStorage.getItem('phantom_license')
+      if (license) {
+        try {
+          await api.validateLicense(license)
+          setIsAuthenticated(true)
+        } catch (e) {
+          console.error('Auth check failed:', e)
+          localStorage.removeItem('phantom_license')
+          localStorage.removeItem('phantom_user')
+        }
+      }
+      setIsCheckingAuth(false)
+    }
+    
+    checkAuth()
+  }, [])
+  
+  const handleLogin = (_licenseKey: string) => {
+    setIsAuthenticated(true)
+  }
   
   // Initial status fetch
   useEffect(() => {
@@ -58,7 +87,7 @@ function App() {
       case 'proxies':
         return <Proxies />
       case 'analytics':
-        return <Analytics />
+        return <CopCalendar />
       case 'intelligence':
         return <Intelligence />
       case 'settings':
@@ -68,6 +97,23 @@ function App() {
     }
   }
   
+  // Show loading while checking auth
+  if (isCheckingAuth) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-moss-500/30 border-t-moss-500 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-[var(--muted)]">Loading Phantom...</p>
+        </div>
+      </div>
+    )
+  }
+  
+  // Show login if not authenticated
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} />
+  }
+  
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
@@ -75,6 +121,8 @@ function App() {
         {renderContent()}
       </main>
       <ToastContainer />
+      <SuccessTheater />
+      <StealthMode />
     </div>
   )
 }

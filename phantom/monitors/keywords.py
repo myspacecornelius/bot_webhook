@@ -85,14 +85,37 @@ class KeywordMatcher:
     
     # Common sneaker brand keywords for auto-expansion
     BRAND_EXPANSIONS = {
-        "jordan": ["jordan", "aj", "air jordan"],
-        "dunk": ["dunk", "sb dunk", "dunk low", "dunk high"],
-        "yeezy": ["yeezy", "yzy", "adidas yeezy"],
+        "jordan": ["jordan", "aj", "air jordan", "retro"],
+        "dunk": ["dunk", "sb dunk", "dunk low", "dunk high", "nike dunk"],
+        "yeezy": ["yeezy", "yzy", "adidas yeezy", "350", "700", "500"],
         "nike": ["nike"],
         "adidas": ["adidas", "adi"],
-        "new balance": ["new balance", "nb", "newbalance"],
+        "new balance": ["new balance", "nb", "newbalance", "550", "2002r", "990"],
         "af1": ["air force 1", "af1", "air force one", "forces"],
+        "asics": ["asics", "gel lyte", "gel kayano", "gel lyte iii", "gt 2160"],
+        "saucony": ["saucony", "shadow", "grid"],
+        "reebok": ["reebok", "rbk", "question", "kamikaze"],
+        "converse": ["converse", "chuck taylor", "chuck", "chuck 70"],
+        "vans": ["vans", "old skool", "sk8", "era"],
+        "puma": ["puma", "suede", "clyde"],
+        "off-white": ["off-white", "off white", "ow", "virgil"],
+        "travis": ["travis scott", "cactus jack", "ts", "travis"],
+        "fragment": ["fragment", "fragment design", "frag", "hiroshi"],
+        "union": ["union", "union la"],
+        "sacai": ["sacai", "chitose abe"],
+        "fear of god": ["fear of god", "fog", "jerry lorenzo"],
     }
+    
+    # Model patterns for normalizing sneaker references
+    MODEL_PATTERNS = [
+        (r'aj(\d+)', r'jordan \1'),           # aj1 → jordan 1
+        (r'aj\s+(\d+)', r'jordan \1'),        # aj 1 → jordan 1
+        (r'jordan\s*(\d+)', r'jordan \1'),    # normalize spacing
+        (r'air jordan\s*(\d+)', r'jordan \1'), # air jordan 1 → jordan 1
+    ]
+    
+    # Style code pattern (Nike/Jordan: XX0000-000)
+    STYLE_CODE_PATTERN = re.compile(r'[A-Z]{2}\d{4}[-\s]?\d{3}', re.IGNORECASE)
     
     # Size keywords
     SIZE_PATTERNS = [
@@ -195,33 +218,113 @@ class KeywordMatcher:
     def generate_keywords_for_product(
         product_name: str,
         sku: Optional[str] = None,
-        brand: Optional[str] = None
+        brand: Optional[str] = None,
+        style_code: Optional[str] = None,
+        colorway: Optional[str] = None
     ) -> str:
-        """Auto-generate optimal keywords for a product"""
+        """
+        Auto-generate optimal keywords for a product
+        Uses intelligent extraction for brand, model, colorway
+        """
         keywords = []
-        
-        # Add SKU if available
-        if sku:
-            keywords.append(f"SKU:{sku}")
-        
-        # Extract key terms from product name
         name_lower = product_name.lower()
         
-        # Remove common filler words
-        stopwords = {'the', 'a', 'an', 'and', 'or', 'in', 'on', 'at', 'to', 'for', 'of', 'with'}
-        words = [w for w in name_lower.split() if w not in stopwords and len(w) > 2]
+        # Add style code / SKU if available (highest priority matching)
+        if style_code:
+            keywords.append(f"SKU:{style_code.upper()}")
+            # Also add without hyphen for flexibility
+            keywords.append(f"SKU:{style_code.replace('-', '').upper()}")
+        elif sku:
+            keywords.append(f"SKU:{sku.upper()}")
         
-        # Add brand if specified
-        if brand:
-            keywords.append(f"+{brand.lower()}")
+        # Extract style code from product name if not provided
+        if not style_code and not sku:
+            style_match = KeywordMatcher.STYLE_CODE_PATTERN.search(product_name)
+            if style_match:
+                keywords.append(f"SKU:{style_match.group().upper()}")
         
-        # Add significant words as required keywords
-        for word in words[:3]:  # Top 3 words
-            if word.isalnum():
-                keywords.append(f"*{word}")
+        # Add brand as positive keyword
+        detected_brand = brand
+        if not detected_brand:
+            # Try to detect brand from name
+            for brand_key, variations in KeywordMatcher.BRAND_EXPANSIONS.items():
+                if any(v in name_lower for v in variations):
+                    detected_brand = brand_key
+                    break
         
-        # Add negative keywords for common unwanted items
-        keywords.extend(["-gs", "-gradeschool", "-toddler", "-infant", "-ps"])
+        if detected_brand:
+            keywords.append(f"+{detected_brand.lower()}")
+        
+        # Extract model information (jordan 1, dunk low, etc.)
+        model_keywords = []
+        
+        # Jordan models
+        jordan_match = re.search(r'jordan\s*(\d+|[ivx]+)', name_lower)
+        if jordan_match:
+            model_num = jordan_match.group(1)
+            model_keywords.extend([f"jordan {model_num}", f"aj{model_num}"])
+        
+        # Dunk variations
+        if 'dunk' in name_lower:
+            if 'low' in name_lower:
+                model_keywords.append('dunk low')
+            elif 'high' in name_lower:
+                model_keywords.append('dunk high')
+            else:
+                model_keywords.append('dunk')
+        
+        # Yeezy models
+        yeezy_match = re.search(r'(yeezy|yzy)\s*(\d+)', name_lower)
+        if yeezy_match:
+            model_keywords.append(f"yeezy {yeezy_match.group(2)}")
+        
+        # Add model keywords as positive
+        for mk in model_keywords[:3]:
+            keywords.append(f"+{mk}")
+        
+        # Add colorway if provided
+        if colorway:
+            keywords.append(f"+{colorway.lower()}")
+        else:
+            # Try to extract colorway from common patterns
+            colorway_patterns = [
+                r'(bred|chicago|royal|shadow|pinnacle|obsidian|court purple)',
+                r'(panda|reverse panda|grey fog|photon dust|sail)',
+                r'(travis|fragment|off-?white|union|sacai)',
+                r'(black cat|fire red|cement|infrared|grape)',
+            ]
+            for pattern in colorway_patterns:
+                match = re.search(pattern, name_lower)
+                if match:
+                    keywords.append(f"+{match.group(1)}")
+                    break
+        
+        # Remove common filler words and extract remaining significant terms
+        stopwords = {
+            'the', 'a', 'an', 'and', 'or', 'in', 'on', 'at', 'to', 'for', 'of', 'with',
+            'mens', 'womens', 'men', 'women', 'shoes', 'shoe', 'sneakers', 'sneaker',
+            'retro', 'og', 'se', 'premium', 'limited', 'nike', 'adidas', 'air'
+        }
+        words = [w for w in re.split(r'\s+', name_lower) if w not in stopwords and len(w) > 2]
+        
+        # Add significant words as required (must-have) keywords
+        required_words = [w for w in words[:2] if w.isalnum()]
+        for word in required_words:
+            keywords.append(f"*{word}")
+        
+        # Comprehensive negative keywords
+        negative_keywords = [
+            # Kids sizes
+            "-gs", "-gradeschool", "-grade school",
+            "-ps", "-preschool", "-pre school",
+            "-td", "-toddler", "-infant",
+            "-kids", "-youth", "-child",
+            # Fakes/replicas
+            "-rep", "-replica", "-fake", "-ua", "-unauthorized",
+            # Wrong regions
+            "-china", "-asia",
+        ]
+        keywords.extend(negative_keywords[:8])  # Limit to avoid too long strings
         
         return ', '.join(keywords)
     

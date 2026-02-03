@@ -5,96 +5,114 @@
 ## 🚀 Features
 
 ### Core Bot Engine
-- **Multi-threaded task execution** with adaptive concurrency
+- **Multi-threaded task execution** with adaptive concurrency (50+ concurrent tasks)
 - **Smart proxy rotation** with health monitoring and automatic failover
-- **Profile management** with card encryption and secure storage
+- **Profile management** with encrypted card storage (AES-256)
 - **Session persistence** for warm browser sessions
 
-### 🧠 Novel Anti-Bot Evasion
+### 🧠 Anti-Bot Evasion
 - **Fingerprint randomization** - Canvas, WebGL, AudioContext spoofing
 - **TLS fingerprint rotation** - JA3/JA4 hash manipulation
 - **Request pattern humanization** - ML-based timing patterns
 - **Adaptive delays** - Learn optimal timing per site
-- **Residential proxy intelligence** - Auto-detect and avoid flagged IPs
 
-### 📊 Market Intelligence (Replaces Cook Groups)
-- **Automated restock prediction** - ML model trained on historical data
-- **Real-time price tracking** - StockX, GOAT, eBay monitoring
-- **Profit calculator** - Instant ROI analysis before purchase
+### 📊 Market Intelligence
+- **Dynamic data sources** - Live pricing from StockX & GOAT
+- **Auto-learned products** - Monitors discover and catalog new products
+- **Intelligent keyword generation** - 20+ brand expansions with model/colorway detection
+- **Profit calculator** - Filters products by minimum profit threshold
 - **Release calendar sync** - Nike SNKRS, Adidas Confirmed, Shopify drops
-- **Keyword research** - Auto-generate optimal monitor keywords
-- **Trend analysis** - Identify emerging hyped products
 
 ### 🛒 Checkout Modules
 - **Shopify** - Normal, Fast, Preload, Safe modes
-- **Nike SNKRS** - Account generation, entry automation
 - **Footsites** - Foot Locker, Champs, Eastbay, Finish Line
+- **Nike SNKRS** - Account generation, entry automation
 - **Adidas** - Splash bypass, queue manipulation
-- **YeezySupply** - Specialized checkout flow
 
 ### 🔐 Captcha Integration
 - **2Captcha** / **Anti-Captcha** / **CapMonster**
-- **Built-in AI solver** using vision models
 - **Harvester management** with cookie persistence
-- **One-click solving** for manual intervention
 
 ### 📱 Notifications & Analytics
 - **Discord webhooks** - Success, failure, restock alerts
 - **Desktop notifications** - Native OS alerts
 - **Analytics dashboard** - Success rates, spending, profits
-- **Export reports** - CSV/PDF for accounting
+
+---
 
 ## 📁 Project Structure
 
 ```
 phantom-bot/
-├── phantom/
-│   ├── core/                 # Core bot engine
-│   │   ├── engine.py         # Main task orchestrator
+├── main.py                   # Entry point (CLI + server modes)
+├── config.yaml               # Main configuration
+├── requirements.txt          # Python dependencies
+│
+├── phantom/                  # Core Python modules
+│   ├── core/                 # Bot engine
+│   │   ├── engine.py         # Main orchestrator (singleton)
 │   │   ├── task.py           # Task models and execution
-│   │   ├── proxy.py          # Proxy management
+│   │   ├── proxy.py          # Proxy manager with health checks
 │   │   └── profile.py        # Profile/payment handling
-│   ├── monitors/             # Site monitors
-│   │   ├── base.py           # Base monitor class
-│   │   ├── shopify.py        # Shopify monitor
-│   │   └── keywords.py       # Keyword matching engine
+│   │
+│   ├── monitors/             # Site monitoring
+│   │   ├── base.py           # BaseMonitor abstract class
+│   │   ├── shopify_monitor.py# Shopify store monitor
+│   │   ├── footsites.py      # Footsite monitor
+│   │   ├── keywords.py       # Keyword matching engine
+│   │   ├── products.py       # Curated product database
+│   │   ├── data_sources.py   # 🆕 StockX/GOAT/learned products
+│   │   ├── manager.py        # Multi-monitor orchestrator
+│   │   └── sites.py          # Store definitions
+│   │
 │   ├── checkout/             # Checkout modules
-│   │   ├── shopify.py        # Shopify checkout
-│   │   ├── nike.py           # Nike SNKRS
-│   │   └── footsites.py      # Footsites
+│   │   └── shopify.py        # Shopify checkout flow
+│   │
 │   ├── evasion/              # Anti-bot systems
 │   │   ├── fingerprint.py    # Browser fingerprinting
-│   │   ├── tls.py            # TLS fingerprint
+│   │   ├── tls.py            # TLS fingerprint rotation
 │   │   └── humanizer.py      # Human behavior simulation
+│   │
 │   ├── intelligence/         # Market intelligence
-│   │   ├── restock.py        # Restock prediction
 │   │   ├── pricing.py        # Price tracking
 │   │   ├── calendar.py       # Release calendar
-│   │   └── research.py       # Keyword/product research
+│   │   └── research.py       # Product research
+│   │
 │   ├── captcha/              # Captcha solving
-│   │   ├── solver.py         # Solver integrations
+│   │   ├── solver.py         # 2Captcha/CapMonster integration
 │   │   └── harvester.py      # Cookie harvesting
+│   │
 │   ├── notifications/        # Alerts & webhooks
 │   │   ├── discord.py        # Discord integration
 │   │   └── desktop.py        # Desktop notifications
+│   │
 │   ├── api/                  # REST API (FastAPI)
-│   │   ├── main.py           # API server
-│   │   └── routes/           # API endpoints
+│   │   └── routes.py         # All API endpoints + WebSocket
+│   │
 │   └── utils/                # Utilities
-│       ├── crypto.py         # Encryption
-│       ├── database.py       # SQLite/PostgreSQL
-│       └── config.py         # Configuration
-├── web/                      # React frontend
-│   ├── src/
-│   └── package.json
-├── data/                     # Data storage
-│   ├── profiles.db           # Encrypted profiles
-│   ├── proxies.json          # Proxy lists
-│   └── ml_models/            # Trained ML models
-├── config.yaml               # Main configuration
-├── requirements.txt          # Python dependencies
-└── run.py                    # Entry point
+│       ├── config.py         # Configuration loader
+│       ├── crypto.py         # AES encryption
+│       └── database.py       # SQLite/PostgreSQL
+│
+├── frontend/                 # React + TypeScript + Vite
+│   └── src/
+│       ├── App.tsx           # Main app with routing
+│       ├── api/              # API client
+│       ├── store/            # Redux store
+│       └── components/       # UI components
+│           ├── Dashboard.tsx # Main dashboard
+│           ├── Tasks.tsx     # Task management
+│           ├── Monitors.tsx  # Monitor controls
+│           ├── Profiles.tsx  # Profile management
+│           ├── Proxies.tsx   # Proxy management
+│           ├── Intelligence.tsx # Market intel
+│           ├── Analytics.tsx # Analytics dashboard
+│           └── Settings.tsx  # Bot settings
+│
+└── data/                     # Data storage
 ```
+
+---
 
 ## 🛠 Installation
 
@@ -104,58 +122,97 @@ git clone https://github.com/yourusername/phantom-bot
 cd phantom-bot
 
 # Create virtual environment
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate  # or `venv\Scripts\activate` on Windows
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Initialize database
-python -m phantom.utils.database init
-
 # Start the bot
-python run.py
+python main.py
 ```
+
+---
 
 ## ⚡ Quick Start
 
 ### Start Backend API Server
 ```bash
-# From project root
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
-python main.py --mode server --port 8081
+source venv/bin/activate
+python main.py --mode server --port 8080
 ```
 
 ### Start Frontend Dev Server
 ```bash
-# In a separate terminal
 cd frontend
 npm install  # first time only
 npm run dev
 ```
 
-The frontend will be available at `http://localhost:5173` (or next available port).
-The backend API runs at `http://localhost:8081`.
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:8080
 
-### Alternative: CLI Mode
+### CLI Mode
 ```bash
-python main.py --cli
+python main.py --mode cli
 ```
 
-### Run Specific Task Group
-```bash
-python main.py --group "Nike Dunks"
+---
+
+## 🆕 Dynamic Data Sources
+
+The bot now automatically fetches live pricing and trending products:
+
+```python
+from phantom.monitors import create_data_source, product_db
+
+# Create data source with StockX + GOAT
+source = create_data_source()
+
+# Fetch trending products and add to database
+await product_db.refresh_from_source(source, limit=50, min_profit=30.0)
+
+# Update prices for existing products
+await product_db.update_prices_from_source(source)
 ```
 
-## 🔑 Configuration
+### Data Source Architecture
+
+| Source | Data | Rate Limit |
+|--------|------|------------|
+| **StockX** | Trending, pricing, style codes | 3s between requests |
+| **GOAT** | Pricing, search | 3s between requests |
+| **MonitorLearned** | Products discovered by monitors | N/A |
+
+---
+
+## 🔑 Keyword Intelligence
+
+Enhanced keyword generation with 20+ brand expansions:
+
+```python
+from phantom.monitors import KeywordMatcher
+
+# Auto-generate optimal keywords
+keywords = KeywordMatcher.generate_keywords_for_product(
+    "Air Jordan 1 Retro High OG Chicago",
+    style_code="DZ5485-612"
+)
+# Output: SKU:DZ5485-612, +jordan, +jordan 1, +aj1, +chicago, -gs, -toddler...
+```
+
+### Supported Brands
+Jordan, Nike, Adidas, Yeezy, New Balance, ASICS, Converse, Vans, Puma, Reebok, Saucony, Off-White, Travis Scott, Fragment, Union, Sacai, Fear of God
+
+---
+
+## ⚙️ Configuration
 
 Edit `config.yaml`:
 
 ```yaml
-license_key: "YOUR-LICENSE-KEY"
-
 captcha:
-  provider: "2captcha"  # or capmonster, anticaptcha
+  provider: "2captcha"
   api_key: "YOUR_API_KEY"
 
 notifications:
@@ -165,17 +222,17 @@ notifications:
 intelligence:
   stockx_api: true
   goat_api: true
-  auto_research: true
-
-proxy:
-  test_on_start: true
-  rotation_strategy: "round_robin"  # or random, sticky
-  health_check_interval: 300
 
 performance:
   max_concurrent_tasks: 50
   max_concurrent_monitors: 20
+
+proxy:
+  test_on_start: true
+  rotation_strategy: "round_robin"  # or random, sticky
 ```
+
+---
 
 ## 📜 License
 

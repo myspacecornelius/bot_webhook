@@ -1,3 +1,5 @@
+### For Claude:Should we be using Selenium for this? Won't javascript break the monitor, by: loading different data, or by blocking the monitor with captchas or other measures?
+
 """
 Shopify Product Monitor - Production Ready
 Comprehensive monitoring for Shopify-based stores

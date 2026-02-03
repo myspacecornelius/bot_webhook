@@ -139,6 +139,42 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     
+    # ============ Authentication ============
+    
+    class LicenseValidation(BaseModel):
+        license_key: str
+    
+    class CheckoutRequest(BaseModel):
+        tier: str
+        email: str
+    
+    @app.post("/api/auth/validate")
+    async def validate_license(data: LicenseValidation):
+        """Validate a license key"""
+        # For local development, accept any non-empty key
+        # In production, this would verify against a license server
+        if not data.license_key or len(data.license_key) < 4:
+            raise HTTPException(status_code=401, detail="Invalid license key")
+        
+        # Return user data for the frontend
+        return {
+            "valid": True,
+            "user": {
+                "license_key": data.license_key[:8] + "...",
+                "tier": "pro",
+                "expires_at": "2027-12-31T23:59:59Z",
+            }
+        }
+    
+    @app.post("/api/auth/checkout")
+    async def create_checkout_session(data: CheckoutRequest):
+        """Create a checkout session (placeholder for Stripe integration)"""
+        # Placeholder - would create Stripe session in production
+        return {
+            "session_id": "demo_session",
+            "url": f"https://phantom-bot.com/checkout?tier={data.tier}&email={data.email}"
+        }
+    
     # ============ Status ============
     
     @app.get("/api/status")
@@ -157,6 +193,7 @@ def create_app() -> FastAPI:
         """Stop the bot engine"""
         background_tasks.add_task(engine.stop)
         return {"message": "Engine stopping..."}
+
     
     # ============ Profiles ============
     

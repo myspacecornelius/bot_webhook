@@ -3,12 +3,17 @@ Curated Product Database
 Pre-configured hyped products with optimized keywords for monitoring
 """
 
+import asyncio
 import json
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, TYPE_CHECKING
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 import structlog
+
+# Avoid circular import
+if TYPE_CHECKING:
+    from .data_sources import ExternalProduct, AggregatedDataSource
 
 logger = structlog.get_logger()
 
@@ -369,6 +374,126 @@ class ProductDatabase:
             "profitable": len(self.get_profitable()),
             "by_brand": {brand: len(ids) for brand, ids in self._by_brand.items()},
         }
+    
+    def add_from_external(self, external: 'ExternalProduct') -> Optional[str]:
+        """
+        Create a CuratedProduct from an ExternalProduct and add to database
+        Returns product_id if added, None if duplicate
+        """
+        # Check for duplicates by style code
+        if external.style_code:
+            for existing in self.products.values():
+                if existing.style_code and existing.style_code.upper() == external.style_code.upper():
+                    # Update pricing instead
+                    existing.current_price = external.market_price
+                    if existing.retail_price > 0:
+                        existing.profit_dollar = external.market_price - existing.retail_price
+                        existing.profit_ratio = existing.profit_dollar / existing.retail_price
+                    return None
+        
+        # Calculate profit metrics
+        profit_dollar = external.market_price - external.retail_price if external.retail_price > 0 else 0
+        profit_ratio = profit_dollar / external.retail_price if external.retail_price > 0 else 0
+        
+        # Determine priority based on profit
+        if profit_dollar >= 200:
+            priority = "high"
+        elif profit_dollar >= 50:
+            priority = "medium"
+        else:
+            priority = "low"
+        
+        # Build optimized search string
+        keywords_parts = external.positive_keywords[:5]
+        neg_parts = [f"-{k}" for k in external.negative_keywords[:5]]
+        optimized_search = " ".join(keywords_parts + neg_parts)
+        
+        product = CuratedProduct(
+            name=external.name,
+            brand=external.brand,
+            positive_keywords=external.positive_keywords,
+            negative_keywords=external.negative_keywords,
+            optimized_search=optimized_search,
+            retail_price=external.retail_price,
+            current_price=external.market_price,
+            profit_dollar=profit_dollar,
+            profit_ratio=profit_ratio,
+            priority=priority,
+            style_code=external.style_code,
+            source=external.source,
+            enabled=True,
+        )
+        
+        return self.add_product(product)
+    
+    async def refresh_from_source(
+        self,
+        source: 'AggregatedDataSource',
+        limit: int = 50,
+        min_profit: float = 30.0
+    ) -> int:
+        """
+        Refresh database with trending products from external sources
+        Returns count of new products added
+        """
+        try:
+            trending = await source.fetch_trending(limit=limit)
+            
+            added_count = 0
+            for external in trending:
+                # Only add profitable products
+                if external.profit_potential >= min_profit:
+                    result = self.add_from_external(external)
+                    if result:  # New product added
+                        added_count += 1
+            
+            logger.info(
+                "Refreshed from external sources",
+                fetched=len(trending),
+                added=added_count,
+                filtered_low_profit=len(trending) - added_count
+            )
+            return added_count
+            
+        except Exception as e:
+            logger.error("Failed to refresh from source", error=str(e))
+            return 0
+    
+    async def update_prices_from_source(
+        self,
+        source: 'AggregatedDataSource'
+    ) -> int:
+        """
+        Update prices for all products with style codes
+        Returns count of products updated
+        """
+        updated = 0
+        
+        for product in self.products.values():
+            if not product.style_code:
+                continue
+            
+            try:
+                price_data = await source.get_best_price(product.style_code)
+                if price_data:
+                    product.current_price = price_data["best_price"]
+                    if product.retail_price > 0:
+                        product.profit_dollar = product.current_price - product.retail_price
+                        product.profit_ratio = product.profit_dollar / product.retail_price
+                    updated += 1
+                    
+                    # Small delay to avoid rate limiting
+                    await asyncio.sleep(1)
+                    
+            except Exception as e:
+                logger.warning(
+                    "Failed to update price",
+                    product=product.name[:30],
+                    error=str(e)
+                )
+        
+        logger.info("Prices updated from sources", count=updated)
+        return updated
 
 
 # Global product database

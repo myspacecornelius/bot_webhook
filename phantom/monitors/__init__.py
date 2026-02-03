@@ -7,6 +7,15 @@ from .sites import Site, SiteType, SHOPIFY_STORES, FOOTSITE_STORES, get_site
 from .shopify_monitor import ShopifyStoreMonitor, MultiStoreMonitor, DetectedProduct, create_default_monitor
 from .footsites import FootsiteMonitor, MultiFootsiteMonitor
 from .manager import MonitorManager, MonitorEvent, monitor_manager, quick_start_monitors
+from .data_sources import (
+    ExternalProduct,
+    DataSource,
+    StockXSource,
+    GOATSource,
+    MonitorLearnedSource,
+    AggregatedDataSource,
+    create_data_source,
+)
 
 __all__ = [
     # Base
@@ -27,4 +36,9 @@ __all__ = [
     
     # Manager
     'MonitorManager', 'MonitorEvent', 'monitor_manager', 'quick_start_monitors',
+    
+    # Data Sources
+    'ExternalProduct', 'DataSource', 'StockXSource', 'GOATSource',
+    'MonitorLearnedSource', 'AggregatedDataSource', 'create_data_source',
 ]
+
