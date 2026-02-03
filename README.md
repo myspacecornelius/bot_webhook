@@ -38,6 +38,14 @@
 - **Desktop notifications** - Native OS alerts
 - **Analytics dashboard** - Success rates, spending, profits
 
+### 🎨 Premium Dark UI
+- **Glassmorphism design** - Frosted glass cards with backdrop blur
+- **Animated gradients** - Dynamic purple/blue accent colors
+- **Real-time updates** - WebSocket-powered live data
+- **Responsive layout** - Works on desktop and tablet
+- **Micro-interactions** - Smooth hover effects and transitions
+- **Smart polling** - Visibility-aware data fetching
+
 ---
 
 ## 📁 Project Structure
@@ -61,12 +69,13 @@ phantom-bot/
 │   │   ├── footsites.py      # Footsite monitor
 │   │   ├── keywords.py       # Keyword matching engine
 │   │   ├── products.py       # Curated product database
-│   │   ├── data_sources.py   # 🆕 StockX/GOAT/learned products
+│   │   ├── restock_tracker.py# 🆕 Restock pattern detection
 │   │   ├── manager.py        # Multi-monitor orchestrator
 │   │   └── sites.py          # Store definitions
 │   │
 │   ├── checkout/             # Checkout modules
-│   │   └── shopify.py        # Shopify checkout flow
+│   │   ├── shopify.py        # Shopify checkout flow
+│   │   └── footsites.py      # 🆕 Footsite checkout
 │   │
 │   ├── evasion/              # Anti-bot systems
 │   │   ├── fingerprint.py    # Browser fingerprinting
@@ -78,6 +87,11 @@ phantom-bot/
 │   │   ├── calendar.py       # Release calendar
 │   │   └── research.py       # Product research
 │   │
+│   ├── auth/                 # 🆕 Authentication & licensing
+│   │   ├── license.py        # License key validation
+│   │   ├── middleware.py     # Auth middleware
+│   │   └── usage_tracker.py  # Usage limits per tier
+│   │
 │   ├── captcha/              # Captcha solving
 │   │   ├── solver.py         # 2Captcha/CapMonster integration
 │   │   └── harvester.py      # Cookie harvesting
@@ -87,7 +101,8 @@ phantom-bot/
 │   │   └── desktop.py        # Desktop notifications
 │   │
 │   ├── api/                  # REST API (FastAPI)
-│   │   └── routes.py         # All API endpoints + WebSocket
+│   │   ├── routes.py         # All API endpoints + WebSocket
+│   │   └── auth_routes.py    # 🆕 Auth endpoints
 │   │
 │   └── utils/                # Utilities
 │       ├── config.py         # Configuration loader
@@ -97,17 +112,31 @@ phantom-bot/
 ├── frontend/                 # React + TypeScript + Vite
 │   └── src/
 │       ├── App.tsx           # Main app with routing
-│       ├── api/              # API client
-│       ├── store/            # Redux store
+│       ├── index.css         # 🆕 Premium dark theme CSS
+│       ├── api/              # Type-safe API client
+│       │   ├── client.ts     # API methods with error handling
+│       │   └── types.ts      # TypeScript interfaces
+│       ├── store/            # Zustand state management
+│       ├── hooks/            # 🆕 Custom hooks
+│       │   ├── useQueries.ts # Smart polling with visibility
+│       │   └── useWebSocket.ts # Real-time updates
 │       └── components/       # UI components
-│           ├── Dashboard.tsx # Main dashboard
-│           ├── Tasks.tsx     # Task management
+│           ├── Dashboard.tsx # Command Center (glassmorphism)
+│           ├── Login.tsx     # 🆕 Premium login with animations
+│           ├── Sidebar.tsx   # Real-time status sidebar
+│           ├── Tasks.tsx     # Task management + quick tasks
 │           ├── Monitors.tsx  # Monitor controls
+│           ├── MonitorsEnhanced.tsx # 🆕 Advanced presets
 │           ├── Profiles.tsx  # Profile management
 │           ├── Proxies.tsx   # Proxy management
+│           ├── ShopifyStores.tsx # 🆕 Store + restock tracking
 │           ├── Intelligence.tsx # Market intel
 │           ├── Analytics.tsx # Analytics dashboard
-│           └── Settings.tsx  # Bot settings
+│           ├── Pricing.tsx   # 🆕 Subscription tiers
+│           ├── Settings.tsx  # Bot settings
+│           └── ui/           # Shared UI components
+│               ├── Toast.tsx # 🆕 Dark theme notifications
+│               └── ConfirmModal.tsx # 🆕 Confirmation dialogs
 │
 └── data/                     # Data storage
 ```
