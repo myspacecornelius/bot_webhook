@@ -50,7 +50,7 @@ export function MonitorsCockpit() {
       const [health, events] = await Promise.all([
         api.get('/api/rate-limit/health'),
         api.get('/api/rate-limit/events?limit=10')
-      ])
+      ]) as [any, any]
       setRateLimitHealth(health)
       setRateLimitEvents(events.events || [])
     } catch (e) { console.error(e) }
