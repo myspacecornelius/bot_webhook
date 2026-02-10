@@ -27,6 +27,7 @@ import { api } from '../api/client'
 import { cn, formatPrice, formatRelativeTime } from '../lib/utils'
 import { toast } from './ui/Toast'
 import { ConfirmModal } from './ui/ConfirmModal'
+import { ProductDetailsDrawer } from './ui/ProductDetailsDrawer'
 import { useWebSocket } from '../hooks/useWebSocket'
 import {
   useEngineStatus,
@@ -41,6 +42,7 @@ interface StatCardProps {
   title: string
   value: string | number
   subtitle?: string
+  tooltip?: string
   icon: React.ComponentType<{ className?: string }>
   trend?: number
   gradient: 'purple' | 'blue' | 'green' | 'red'
@@ -53,6 +55,7 @@ function StatCard({
   title,
   value,
   subtitle,
+  tooltip,
   icon: Icon,
   trend,
   gradient,
@@ -82,12 +85,15 @@ function StatCard({
   }
 
   return (
-    <div className={cn(
-      "group relative p-6 rounded-2xl bg-gradient-to-br border backdrop-blur-xl overflow-hidden transition-all duration-300",
-      gradients[gradient],
-      glowColors[gradient],
-      "hover:shadow-2xl hover:-translate-y-1"
-    )}>
+    <div
+      className={cn(
+        "group relative p-6 rounded-2xl bg-gradient-to-br border backdrop-blur-xl overflow-hidden transition-all duration-300",
+        gradients[gradient],
+        glowColors[gradient],
+        "hover:shadow-2xl hover:-translate-y-1"
+      )}
+      title={tooltip}
+    >
       {/* Subtle glow effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
@@ -145,7 +151,24 @@ function StatCard({
 
 // ============ Live Feed Component ============
 
-function LiveFeed() {
+interface MonitorEvent {
+  id?: string
+  type: 'new_product' | 'restock' | 'price_drop'
+  source: 'shopify' | 'footsite' | 'snkrs'
+  store: string
+  product: string
+  url: string
+  sizes: string[]
+  price: number
+  matched: string | null
+  confidence: number
+  priority: 'high' | 'medium' | 'low'
+  profit?: number | null
+  timestamp: string
+  imageUrl?: string
+}
+
+function LiveFeed({ onSelectEvent }: { onSelectEvent: (event: MonitorEvent) => void }) {
   const { events, isConnected } = useStore()
   const recentEvents = useMemo(() => events.slice(0, 8), [events])
 
@@ -185,10 +208,11 @@ function LiveFeed() {
           </div>
         ) : (
           recentEvents.map((event, i) => (
-            <div
+            <button
               key={event.id || `event-${i}`}
+              onClick={() => onSelectEvent(event as MonitorEvent)}
               className={cn(
-                "p-4 rounded-xl border transition-all duration-200",
+                "w-full text-left p-4 rounded-xl border transition-all duration-200 cursor-pointer",
                 event.priority === 'high'
                   ? "bg-emerald-500/10 border-emerald-500/30 hover:border-emerald-500/50"
                   : "bg-zinc-800/50 border-zinc-700/50 hover:border-zinc-600"
@@ -246,7 +270,7 @@ function LiveFeed() {
                   )}
                 </div>
               </div>
-            </div>
+            </button>
           ))
         )}
       </div>
@@ -365,6 +389,7 @@ export function Dashboard() {
   const [showStopEngineModal, setShowStopEngineModal] = useState(false)
   const [engineActionLoading, setEngineActionLoading] = useState(false)
   const [monitorActionLoading, setMonitorActionLoading] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState<MonitorEvent | null>(null)
 
   // Sync states
   if (engineStatus && engineStatus.running !== isRunning) {
@@ -540,6 +565,7 @@ export function Dashboard() {
           title="Products Found"
           value={totalProducts}
           subtitle="Total detections"
+          tooltip="Total number of products detected by monitors since the last reset"
           icon={ShoppingBag}
           gradient="purple"
           loading={monitorLoading}
@@ -550,6 +576,7 @@ export function Dashboard() {
           title="High Priority"
           value={highPriority}
           subtitle="Profitable items"
+          tooltip="Products that match your keywords and exceed profit thresholds"
           icon={TrendingUp}
           gradient="green"
           loading={monitorLoading}
@@ -560,6 +587,7 @@ export function Dashboard() {
           title="Checkouts"
           value={checkouts}
           subtitle="Successful orders"
+          tooltip="Completed checkout attempts - orders placed successfully"
           icon={DollarSign}
           gradient="blue"
           loading={checkoutLoading}
@@ -570,6 +598,7 @@ export function Dashboard() {
           title="Declines"
           value={declines}
           subtitle="Failed attempts"
+          tooltip="Failed checkout attempts due to out-of-stock, payment issues, or anti-bot detection"
           icon={AlertTriangle}
           gradient="red"
           loading={checkoutLoading}
@@ -580,7 +609,7 @@ export function Dashboard() {
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <LiveFeed />
+        <LiveFeed onSelectEvent={setSelectedEvent} />
         <StoreHealth />
       </div>
 
@@ -595,6 +624,13 @@ export function Dashboard() {
         cancelText="Keep Running"
         variant="danger"
         isLoading={engineActionLoading}
+      />
+
+      {/* Product Details Drawer */}
+      <ProductDetailsDrawer
+        isOpen={selectedEvent !== null}
+        onClose={() => setSelectedEvent(null)}
+        event={selectedEvent}
       />
     </div>
   )

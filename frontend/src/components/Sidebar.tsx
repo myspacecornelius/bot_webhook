@@ -16,7 +16,8 @@ import {
   Sparkles,
   Wifi,
   WifiOff,
-  AlertCircle
+  AlertCircle,
+  BookOpen
 } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import { cn } from '../lib/utils'
@@ -31,6 +32,7 @@ const navItems = [
   { id: 'proxies', label: 'Proxies', icon: Globe },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
   { id: 'intelligence', label: 'Intelligence', icon: TrendingUp },
+  { id: 'learn', label: 'Learn', icon: BookOpen },
   { id: 'settings', label: 'Settings', icon: Settings },
 ]
 

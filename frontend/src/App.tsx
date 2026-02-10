@@ -11,6 +11,7 @@ import { Proxies } from './components/Proxies'
 import { CopCalendar } from './components/CopCalendar'
 import { Intelligence } from './components/Intelligence'
 import { Settings } from './components/Settings'
+import { LearnPage } from './components/LearnPage'
 import { ToastContainer } from './components/ui/Toast'
 import { SuccessTheater } from './components/SuccessTheater'
 import { StealthMode } from './components/StealthMode'
@@ -20,7 +21,7 @@ function App() {
   const { selectedTab, setRunning, setMonitorsRunning, setStats } = useStore()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
-  
+
   // Check for existing license on mount
   useEffect(() => {
     const checkAuth = async () => {
@@ -37,14 +38,14 @@ function App() {
       }
       setIsCheckingAuth(false)
     }
-    
+
     checkAuth()
   }, [])
-  
+
   const handleLogin = (_licenseKey: string) => {
     setIsAuthenticated(true)
   }
-  
+
   // Initial status fetch
   useEffect(() => {
     const fetchStatus = async () => {
@@ -53,7 +54,7 @@ function App() {
         if (status.running !== undefined) {
           setRunning(status.running)
         }
-        
+
         const monitorStatus = await api.getMonitorStatus()
         if (monitorStatus.running !== undefined) {
           setMonitorsRunning(monitorStatus.running)
@@ -68,10 +69,10 @@ function App() {
         console.log('API not available yet')
       }
     }
-    
+
     fetchStatus()
   }, [])
-  
+
   const renderContent = () => {
     switch (selectedTab) {
       case 'dashboard':
@@ -90,13 +91,15 @@ function App() {
         return <CopCalendar />
       case 'intelligence':
         return <Intelligence />
+      case 'learn':
+        return <LearnPage />
       case 'settings':
         return <Settings />
       default:
         return <Dashboard />
     }
   }
-  
+
   // Show loading while checking auth
   if (isCheckingAuth) {
     return (
@@ -108,12 +111,12 @@ function App() {
       </div>
     )
   }
-  
+
   // Show login if not authenticated
   if (!isAuthenticated) {
     return <Login onLogin={handleLogin} />
   }
-  
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />

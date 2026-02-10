@@ -48,7 +48,7 @@ const MONITOR_PRESETS = [
     id: 'yeezys',
     name: 'Yeezys',
     icon: Zap,
-    color: 'moss',
+    color: 'blue',
     keywords: ['yeezy', 'adidas yeezy', 'yzy'],
     minPrice: 200,
     maxPrice: 350,
@@ -92,10 +92,10 @@ const FOOTSITES = [
 function PresetCard({ preset, onApply, isActive }: { preset: typeof MONITOR_PRESETS[0], onApply: () => void, isActive: boolean }) {
   const Icon = preset.icon
   const colors = {
-    moss: 'from-moss-500/20 to-moss-500/10 border-moss-500/30 text-moss-400',
+    moss: 'from-violet-500/20 to-violet-500/10 border-violet-500/30 text-violet-400',
     red: 'from-red-500/20 to-rose-500/10 border-red-500/30 text-red-400',
-    blue: 'from-[var(--info)]/20 to-blue-500/10 border-[var(--info)]/30 text-[var(--info)]',
-    green: 'from-green-500/20 to-[var(--primary)]/10 border-green-500/30 text-green-400',
+    blue: 'from-blue-500/20 to-blue-500/10 border-blue-500/30 text-blue-400',
+    green: 'from-green-500/20 to-emerald-500/10 border-green-500/30 text-green-400',
   }
 
   return (
@@ -136,16 +136,16 @@ function StoreCard({
     <div className={cn(
       "p-4 rounded-xl border transition-all",
       enabled
-        ? "bg-[var(--surface)] border-moss-500/30"
+        ? "bg-[var(--surface)] border-violet-500/30"
         : "bg-[var(--bg)] border-[var(--border)] opacity-60"
     )}>
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
           <div className={cn(
             "w-10 h-10 rounded-lg flex items-center justify-center",
-            enabled ? "bg-moss-500/20" : "bg-[var(--surface2)]"
+            enabled ? "bg-violet-500/20" : "bg-[var(--surface2)]"
           )}>
-            <Store className={cn("w-5 h-5", enabled ? "text-moss-400" : "text-[var(--muted)]")} />
+            <Store className={cn("w-5 h-5", enabled ? "text-violet-400" : "text-[var(--muted)]")} />
           </div>
           <div>
             <h3 className="font-medium text-[var(--text)]">{name}</h3>
@@ -160,7 +160,7 @@ function StoreCard({
           aria-label={`Toggle ${name} monitoring`}
           className={cn(
             "w-12 h-6 rounded-full transition-colors relative",
-            enabled ? "bg-moss-600" : "bg-[var(--surface2)]"
+            enabled ? "bg-violet-600" : "bg-[var(--surface2)]"
           )}
         >
           <div className={cn(
@@ -301,7 +301,7 @@ export function MonitorsEnhanced() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-[var(--text)] flex items-center gap-3">
-            <Radio className="w-7 h-7 text-[var(--info)]" />
+            <Radio className="w-7 h-7 text-[var(--primary)]" />
             Advanced Monitor Setup
           </h1>
           <p className="text-[var(--muted)] text-sm mt-1">
@@ -315,8 +315,8 @@ export function MonitorsEnhanced() {
             className={cn(
               "flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all border",
               showFilters
-                ? "bg-moss-500/20 text-moss-400 border-moss-500/30"
-                : "bg-[var(--surface2)] text-[var(--muted)] border-[var(--border)] hover:border-moss-500/30"
+                ? "bg-violet-500/20 text-violet-400 border-violet-500/30"
+                : "bg-[var(--surface2)] text-[var(--muted)] border-[var(--border)] hover:border-violet-500/30"
             )}
           >
             <Filter className="w-4 h-4" />
@@ -329,7 +329,7 @@ export function MonitorsEnhanced() {
               "flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all",
               monitorsRunning
                 ? "bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30"
-                : "bg-[var(--info)] text-[var(--text)] hover:bg-[var(--primary)]"
+                : "bg-[var(--primary)] text-white hover:bg-[var(--primary-dark)]"
             )}
           >
             {loading ? (
@@ -347,7 +347,7 @@ export function MonitorsEnhanced() {
       {/* Quick Presets */}
       <div className="mb-6">
         <h2 className="text-lg font-semibold text-[var(--text)] flex items-center gap-2 mb-4">
-          <Sparkles className="w-5 h-5 text-moss-400" />
+          <Sparkles className="w-5 h-5 text-violet-400" />
           Quick Presets
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -364,10 +364,10 @@ export function MonitorsEnhanced() {
 
       {/* Advanced Filters */}
       {showFilters && (
-        <div className="mb-6 p-5 rounded-xl bg-[var(--surface)] border border-moss-500/30">
+        <div className="mb-6 p-5 rounded-xl bg-[var(--surface)] border border-violet-500/30">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-[var(--text)] flex items-center gap-2">
-              <Filter className="w-5 h-5 text-moss-400" />
+              <Filter className="w-5 h-5 text-violet-400" />
               Advanced Filters
             </h3>
             {(keywords || minPrice || maxPrice) && (
@@ -391,7 +391,7 @@ export function MonitorsEnhanced() {
                 type="text"
                 value={keywords}
                 onChange={(e) => setKeywords(e.target.value)}
-                className="w-full px-4 py-2 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-gray-500 focus:outline-none focus:border-moss-500"
+                className="w-full px-4 py-2 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-zinc-500 focus:outline-none focus:border-violet-500"
                 placeholder="dunk, jordan, yeezy"
               />
             </div>
@@ -405,7 +405,7 @@ export function MonitorsEnhanced() {
                 type="number"
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
-                className="w-full px-4 py-2 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-gray-500 focus:outline-none focus:border-moss-500"
+                className="w-full px-4 py-2 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-zinc-500 focus:outline-none focus:border-violet-500"
                 placeholder="100"
               />
             </div>
@@ -419,7 +419,7 @@ export function MonitorsEnhanced() {
                 type="number"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
-                className="w-full px-4 py-2 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-gray-500 focus:outline-none focus:border-moss-500"
+                className="w-full px-4 py-2 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-zinc-500 focus:outline-none focus:border-violet-500"
                 placeholder="250"
               />
             </div>
@@ -436,7 +436,7 @@ export function MonitorsEnhanced() {
           type="text"
           value={targetSizes}
           onChange={(e) => setTargetSizes(e.target.value)}
-          className="w-full px-4 py-2 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-gray-500 focus:outline-none focus:border-moss-500"
+          className="w-full px-4 py-2 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-zinc-500 focus:outline-none focus:border-violet-500"
           placeholder="10, 10.5, 11, 11.5, 12"
         />
       </div>
@@ -445,12 +445,12 @@ export function MonitorsEnhanced() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-[var(--text)] flex items-center gap-2">
-            <Store className="w-5 h-5 text-moss-400" />
+            <Store className="w-5 h-5 text-violet-400" />
             Shopify Stores
           </h2>
           <button
             onClick={() => setShowAddStore(true)}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-moss-500/20 text-moss-400 rounded-lg hover:bg-moss-500/30 transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm bg-violet-500/20 text-violet-400 rounded-lg hover:bg-violet-500/30 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Add Store
@@ -458,20 +458,20 @@ export function MonitorsEnhanced() {
         </div>
 
         {showAddStore && (
-          <div className="mb-4 p-4 rounded-xl bg-[var(--surface)] border border-moss-500/30">
+          <div className="mb-4 p-4 rounded-xl bg-[var(--surface)] border border-violet-500/30">
             <div className="grid grid-cols-2 gap-4 mb-3">
               <input
                 type="text"
                 value={newStore.name}
                 onChange={(e) => setNewStore({ ...newStore, name: e.target.value })}
-                className="px-3 py-2 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-gray-500 focus:outline-none focus:border-moss-500"
+                className="px-3 py-2 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-zinc-500 focus:outline-none focus:border-violet-500"
                 placeholder="Store Name"
               />
               <input
                 type="text"
                 value={newStore.url}
                 onChange={(e) => setNewStore({ ...newStore, url: e.target.value })}
-                className="px-3 py-2 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-gray-500 focus:outline-none focus:border-moss-500"
+                className="px-3 py-2 bg-[var(--surface2)] border border-[var(--border)] rounded-lg text-[var(--text)] placeholder-zinc-500 focus:outline-none focus:border-violet-500"
                 placeholder="https://store.com"
               />
             </div>
@@ -484,7 +484,7 @@ export function MonitorsEnhanced() {
               </button>
               <button
                 onClick={addCustomStore}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-moss-600 text-[var(--text)] rounded-lg hover:bg-moss-500 transition-colors"
+                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-violet-600 text-white rounded-lg hover:bg-violet-500 transition-colors"
               >
                 <Check className="w-4 h-4" />
                 Add
@@ -510,7 +510,7 @@ export function MonitorsEnhanced() {
       {/* Footsites */}
       <div>
         <h2 className="text-lg font-semibold text-[var(--text)] flex items-center gap-2 mb-4">
-          <Globe className="w-5 h-5 text-[var(--info)]" />
+          <Globe className="w-5 h-5 text-blue-400" />
           Footsites
         </h2>
 
@@ -522,7 +522,7 @@ export function MonitorsEnhanced() {
               className={cn(
                 "p-4 rounded-xl border cursor-pointer transition-all",
                 site.enabled
-                  ? "bg-[var(--surface)] border-[var(--info)]/30"
+                  ? "bg-[var(--surface)] border-blue-500/30"
                   : "bg-[var(--bg)] border-[var(--border)] opacity-60"
               )}
             >
@@ -530,17 +530,17 @@ export function MonitorsEnhanced() {
                 <div className="flex items-center gap-3">
                   <div className={cn(
                     "w-8 h-8 rounded-lg flex items-center justify-center",
-                    site.enabled ? "bg-[var(--info)]/10" : "bg-[var(--surface2)]"
+                    site.enabled ? "bg-blue-500/10" : "bg-[var(--surface2)]"
                   )}>
-                    <Globe className={cn("w-4 h-4", site.enabled ? "text-[var(--info)]" : "text-[var(--muted)]")} />
+                    <Globe className={cn("w-4 h-4", site.enabled ? "text-blue-400" : "text-[var(--muted)]")} />
                   </div>
                   <span className="font-medium text-[var(--text)]">{site.name}</span>
                 </div>
                 <div className={cn(
                   "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors",
-                  site.enabled ? "border-[var(--info)] bg-[var(--info)]" : "border-gray-600"
+                  site.enabled ? "border-blue-500 bg-blue-500" : "border-zinc-600"
                 )}>
-                  {site.enabled && <Check className="w-3 h-3 text-[var(--text)]" />}
+                  {site.enabled && <Check className="w-3 h-3 text-white" />}
                 </div>
               </div>
             </div>
