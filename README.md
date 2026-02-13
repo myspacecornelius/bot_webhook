@@ -1,272 +1,144 @@
-# 👻 Phantom Bot - Advanced Sneaker Automation Suite
+# 👻 Phantom Bot — Advanced Sneaker Automation Suite
 
-> **The most sophisticated all-in-one sneaker bot with built-in market intelligence**
+> **All-in-one sneaker bot with built-in market intelligence**
 
-## 🚀 Features
-
-### Core Bot Engine
-- **Multi-threaded task execution** with adaptive concurrency (50+ concurrent tasks)
-- **Smart proxy rotation** with health monitoring and automatic failover
-- **Profile management** with encrypted card storage (AES-256)
-- **Session persistence** for warm browser sessions
-
-### 🧠 Anti-Bot Evasion
-- **Fingerprint randomization** - Canvas, WebGL, AudioContext spoofing
-- **TLS fingerprint rotation** - JA3/JA4 hash manipulation
-- **Request pattern humanization** - ML-based timing patterns
-- **Adaptive delays** - Learn optimal timing per site
-
-### 📊 Market Intelligence
-- **Dynamic data sources** - Live pricing from StockX & GOAT
-- **Auto-learned products** - Monitors discover and catalog new products
-- **Intelligent keyword generation** - 20+ brand expansions with model/colorway detection
-- **Profit calculator** - Filters products by minimum profit threshold
-- **Release calendar sync** - Nike SNKRS, Adidas Confirmed, Shopify drops
-
-### 🛒 Checkout Modules
-- **Shopify** - Normal, Fast, Preload, Safe modes
-- **Footsites** - Foot Locker, Champs, Eastbay, Finish Line
-- **Nike SNKRS** - Account generation, entry automation
-- **Adidas** - Splash bypass, queue manipulation
-
-### 🔐 Captcha Integration
-- **2Captcha** / **Anti-Captcha** / **CapMonster**
-- **Harvester management** with cookie persistence
-
-### 📱 Notifications & Analytics
-- **Discord webhooks** - Success, failure, restock alerts
-- **Desktop notifications** - Native OS alerts
-- **Analytics dashboard** - Success rates, spending, profits
-
-### 🎨 Premium Dark UI
-- **Glassmorphism design** - Frosted glass cards with backdrop blur
-- **Animated gradients** - Dynamic purple/blue accent colors
-- **Real-time updates** - WebSocket-powered live data
-- **Responsive layout** - Works on desktop and tablet
-- **Micro-interactions** - Smooth hover effects and transitions
-- **Smart polling** - Visibility-aware data fetching
-
----
-
-## 📁 Project Structure
-
-```
-phantom-bot/
-├── main.py                   # Entry point (CLI + server modes)
-├── config.yaml               # Main configuration
-├── requirements.txt          # Python dependencies
-│
-├── phantom/                  # Core Python modules
-│   ├── core/                 # Bot engine
-│   │   ├── engine.py         # Main orchestrator (singleton)
-│   │   ├── task.py           # Task models and execution
-│   │   ├── proxy.py          # Proxy manager with health checks
-│   │   └── profile.py        # Profile/payment handling
-│   │
-│   ├── monitors/             # Site monitoring
-│   │   ├── base.py           # BaseMonitor abstract class
-│   │   ├── shopify_monitor.py# Shopify store monitor
-│   │   ├── footsites.py      # Footsite monitor
-│   │   ├── keywords.py       # Keyword matching engine
-│   │   ├── products.py       # Curated product database
-│   │   ├── restock_tracker.py# 🆕 Restock pattern detection
-│   │   ├── manager.py        # Multi-monitor orchestrator
-│   │   └── sites.py          # Store definitions
-│   │
-│   ├── checkout/             # Checkout modules
-│   │   ├── shopify.py        # Shopify checkout flow
-│   │   └── footsites.py      # 🆕 Footsite checkout
-│   │
-│   ├── evasion/              # Anti-bot systems
-│   │   ├── fingerprint.py    # Browser fingerprinting
-│   │   ├── tls.py            # TLS fingerprint rotation
-│   │   └── humanizer.py      # Human behavior simulation
-│   │
-│   ├── intelligence/         # Market intelligence
-│   │   ├── pricing.py        # Price tracking
-│   │   ├── calendar.py       # Release calendar
-│   │   └── research.py       # Product research
-│   │
-│   ├── auth/                 # 🆕 Authentication & licensing
-│   │   ├── license.py        # License key validation
-│   │   ├── middleware.py     # Auth middleware
-│   │   └── usage_tracker.py  # Usage limits per tier
-│   │
-│   ├── captcha/              # Captcha solving
-│   │   ├── solver.py         # 2Captcha/CapMonster integration
-│   │   └── harvester.py      # Cookie harvesting
-│   │
-│   ├── notifications/        # Alerts & webhooks
-│   │   ├── discord.py        # Discord integration
-│   │   └── desktop.py        # Desktop notifications
-│   │
-│   ├── api/                  # REST API (FastAPI)
-│   │   ├── routes.py         # All API endpoints + WebSocket
-│   │   └── auth_routes.py    # 🆕 Auth endpoints
-│   │
-│   └── utils/                # Utilities
-│       ├── config.py         # Configuration loader
-│       ├── crypto.py         # AES encryption
-│       └── database.py       # SQLite/PostgreSQL
-│
-├── frontend/                 # React + TypeScript + Vite
-│   └── src/
-│       ├── App.tsx           # Main app with routing
-│       ├── index.css         # 🆕 Premium dark theme CSS
-│       ├── api/              # Type-safe API client
-│       │   ├── client.ts     # API methods with error handling
-│       │   └── types.ts      # TypeScript interfaces
-│       ├── store/            # Zustand state management
-│       ├── hooks/            # 🆕 Custom hooks
-│       │   ├── useQueries.ts # Smart polling with visibility
-│       │   └── useWebSocket.ts # Real-time updates
-│       └── components/       # UI components
-│           ├── Dashboard.tsx # Command Center (glassmorphism)
-│           ├── Login.tsx     # 🆕 Premium login with animations
-│           ├── Sidebar.tsx   # Real-time status sidebar
-│           ├── Tasks.tsx     # Task management + quick tasks
-│           ├── Monitors.tsx  # Monitor controls
-│           ├── MonitorsEnhanced.tsx # 🆕 Advanced presets
-│           ├── Profiles.tsx  # Profile management
-│           ├── Proxies.tsx   # Proxy management
-│           ├── ShopifyStores.tsx # 🆕 Store + restock tracking
-│           ├── Intelligence.tsx # Market intel
-│           ├── Analytics.tsx # Analytics dashboard
-│           ├── Pricing.tsx   # 🆕 Subscription tiers
-│           ├── Settings.tsx  # Bot settings
-│           └── ui/           # Shared UI components
-│               ├── Toast.tsx # 🆕 Dark theme notifications
-│               └── ConfirmModal.tsx # 🆕 Confirmation dialogs
-│
-└── data/                     # Data storage
-```
-
----
-
-## 🛠 Installation
+## Quick Start
 
 ```bash
-# Clone repository
-git clone https://github.com/yourusername/phantom-bot
-cd phantom-bot
-
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Start the bot
-python main.py
-```
-
----
-
-## ⚡ Quick Start
-
-### Start Backend API Server
-```bash
-source venv/bin/activate
-python main.py --mode server --port 8080
-```
-
-### Start Frontend Dev Server
-```bash
-cd frontend
-npm install  # first time only
-npm run dev
+make install   # Set up Python venv, npm, pre-commit hooks
+make dev       # Start backend (:8080) + frontend (:5173)
 ```
 
 - **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:8080
+- **API Docs (Swagger)**: http://localhost:8080/docs
 
-### CLI Mode
+## Features
+
+| Category          | Highlights                                                               |
+| ----------------- | ------------------------------------------------------------------------ |
+| **Checkout**      | Shopify (Normal/Fast/Safe), Footsites (FL, Champs, Eastbay, Finish Line) |
+| **Monitoring**    | Multi-store Shopify, Footsite keywords, auto-task creation               |
+| **Anti-Bot**      | Fingerprint randomization, TLS rotation (JA3/JA4), request humanization  |
+| **Intelligence**  | Live StockX/GOAT pricing, profit calculator, release calendar            |
+| **Captcha**       | 2Captcha, CapMonster, multi-provider fallback                            |
+| **Notifications** | Discord webhooks (success/failure/restock), desktop alerts               |
+| **UI**            | Glassmorphism dark theme, WebSocket real-time updates, responsive layout |
+
+## Project Structure
+
+```
+phantom-bot/
+├── main.py                # Entry point (CLI + server modes)
+├── config.yaml            # Main configuration
+├── Makefile               # dev, test, lint, format, docker, release
+├── phantom/               # Python backend
+│   ├── api/               # FastAPI routes + WebSocket
+│   ├── core/              # Engine, tasks, proxies, profiles
+│   ├── monitors/          # Shopify, Footsite monitoring
+│   ├── checkout/          # Site-specific checkout modules
+│   ├── evasion/           # Anti-detection (fingerprint, TLS)
+│   ├── intelligence/      # Market research, pricing
+│   ├── auth/              # License validation, middleware
+│   ├── captcha/           # Captcha solving
+│   ├── notifications/     # Discord, desktop alerts
+│   └── utils/             # Config, crypto, database
+├── frontend/              # React + TypeScript + Vite
+│   └── src/
+│       ├── api/           # Type-safe API client
+│       ├── components/    # Dashboard, Tasks, Monitors, etc.
+│       ├── hooks/         # useQueries, useWebSocket
+│       └── store/         # Zustand state management
+├── electron/              # Optional desktop wrapper
+└── docs/                  # Documentation
+```
+
+## Development
+
 ```bash
+make dev       # Start backend + frontend dev servers
+make lint      # Run ruff (Python) + eslint (TypeScript)
+make format    # Auto-format all code
+make test      # Run test suite
+make typecheck # Run mypy
+make docker    # Build Docker image
+```
+
+## Build & Startup
+
+### Manual Setup
+
+If you prefer running without `make`:
+
+**1. Frontend (React/Vite)**
+
+```bash
+cd frontend
+npm install
+npm run build   # Builds production assets to frontend/dist/
+```
+
+**2. Backend (Python)**
+
+```bash
+# Create venv and install deps
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Start Server Mode (API + WebSockets + Monitors)
+python main.py --mode server --port 8080
+
+# Start CLI Mode (Headless Monitors/Helpers)
 python main.py --mode cli
 ```
 
----
+### Docker Deployment
 
-## 🆕 Dynamic Data Sources
+Build the all-in-one image (serves frontend + backend):
 
-The bot now automatically fetches live pricing and trending products:
+1. **Create Environment File**
 
-```python
-from phantom.monitors import create_data_source, product_db
+    ```bash
+    cp .env.example .env
+    # Edit .env with your secrets if needed
+    ```
 
-# Create data source with StockX + GOAT
-source = create_data_source()
+2. **Build & Run**
+    ```bash
+    docker build -t phantom-bot:latest .
+    docker run --env-file .env -p 8080:8080 phantom-bot:latest
+    ```
 
-# Fetch trending products and add to database
-await product_db.refresh_from_source(source, limit=50, min_profit=30.0)
+## Documentation
 
-# Update prices for existing products
-await product_db.update_prices_from_source(source)
-```
+| Doc                                  | Purpose                                |
+| ------------------------------------ | -------------------------------------- |
+| [Setup](docs/setup.md)               | Installation, configuration, first run |
+| [Deploy](docs/deploy.md)             | Fly.io, Netlify, Docker deployment     |
+| [Architecture](docs/architecture.md) | System design, layering, data flow     |
+| [Security](docs/security.md)         | Secrets, auth, audit findings          |
+| [Electron](docs/electron.md)         | Building the desktop app               |
+| [Roadmap](docs/roadmap.md)           | Feature status and priorities          |
+| [Contributing](CONTRIBUTING.md)      | Dev setup, code standards, PR process  |
 
-### Data Source Architecture
-
-| Source | Data | Rate Limit |
-|--------|------|------------|
-| **StockX** | Trending, pricing, style codes | 3s between requests |
-| **GOAT** | Pricing, search | 3s between requests |
-| **MonitorLearned** | Products discovered by monitors | N/A |
-
----
-
-## 🔑 Keyword Intelligence
-
-Enhanced keyword generation with 20+ brand expansions:
-
-```python
-from phantom.monitors import KeywordMatcher
-
-# Auto-generate optimal keywords
-keywords = KeywordMatcher.generate_keywords_for_product(
-    "Air Jordan 1 Retro High OG Chicago",
-    style_code="DZ5485-612"
-)
-# Output: SKU:DZ5485-612, +jordan, +jordan 1, +aj1, +chicago, -gs, -toddler...
-```
-
-### Supported Brands
-Jordan, Nike, Adidas, Yeezy, New Balance, ASICS, Converse, Vans, Puma, Reebok, Saucony, Off-White, Travis Scott, Fragment, Union, Sacai, Fear of God
-
----
-
-## ⚙️ Configuration
+## Configuration
 
 Edit `config.yaml`:
 
 ```yaml
 captcha:
-  provider: "2captcha"
-  api_key: "YOUR_API_KEY"
+    provider: "2captcha"
+    api_key: "YOUR_API_KEY"
 
 notifications:
-  discord_webhook: "https://discord.com/api/webhooks/..."
-  desktop_alerts: true
-
-intelligence:
-  stockx_api: true
-  goat_api: true
+    discord_webhook: "https://discord.com/api/webhooks/..."
 
 performance:
-  max_concurrent_tasks: 50
-  max_concurrent_monitors: 20
-
-proxy:
-  test_on_start: true
-  rotation_strategy: "round_robin"  # or random, sticky
+    max_concurrent_tasks: 50
+    max_concurrent_monitors: 20
 ```
 
----
+## License
 
-## 📜 License
-
-Proprietary - All rights reserved.
-
----
-
-Built with ❤️ for the sneaker community
+Proprietary — All rights reserved.

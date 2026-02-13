@@ -10,6 +10,11 @@ env/
 dist/
 build/
 *.egg
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+htmlcov/
+.coverage
 
 # Electron
 dist-electron/
@@ -26,14 +31,17 @@ node_modules/
 .idea/
 *.swp
 *.swo
+
+# macOS
 .DS_Store
+**/.DS_Store
 
 # Logs
 *.log
 logs/
 
 # Database
-*.db
+data/*.db
 *.sqlite
 
 # Large binaries
@@ -41,3 +49,6 @@ logs/
 *.exe
 *.AppImage
 *.pkg
+
+# Deprioritized modules
+phantom/intelligence/calendar.py
