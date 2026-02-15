@@ -1,31 +1,31 @@
-import { useEffect, useState } from 'react'
-import { Eye, EyeOff, Shield } from 'lucide-react'
-import { cn } from '../lib/utils'
+import { useEffect, useState } from "react";
+import { Eye, EyeOff, Shield } from "lucide-react";
+import { cn } from "../lib/utils";
 
 export function StealthMode() {
-  const [isStealthActive, setIsStealthActive] = useState(false)
-  
+  const [isStealthActive, setIsStealthActive] = useState(false);
+
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       // Escape key toggles stealth mode
-      if (e.key === 'Escape') {
-        setIsStealthActive(prev => !prev)
+      if (e.key === "Escape") {
+        setIsStealthActive((prev) => !prev);
       }
-    }
-    
-    window.addEventListener('keydown', handleKeyPress)
-    return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [])
-  
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, []);
+
   useEffect(() => {
     // Apply blur to sensitive elements when stealth is active
     if (isStealthActive) {
-      document.body.classList.add('stealth-mode-active')
+      document.body.classList.add("stealth-mode-active");
     } else {
-      document.body.classList.remove('stealth-mode-active')
+      document.body.classList.remove("stealth-mode-active");
     }
-  }, [isStealthActive])
-  
+  }, [isStealthActive]);
+
   return (
     <>
       {/* Stealth Mode Indicator */}
@@ -35,9 +35,13 @@ export function StealthMode() {
           "fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-2xl transition-all duration-300",
           isStealthActive
             ? "bg-moss-600 hover:bg-moss-500 animate-pulse"
-            : "bg-[var(--surface2)] hover:bg-[var(--surface2)] border border-[var(--border)]"
+            : "bg-[var(--surface2)] hover:bg-[var(--surface2)] border border-[var(--border)]",
         )}
-        title={isStealthActive ? "Stealth Mode Active (Press ESC)" : "Activate Stealth Mode (Press ESC)"}
+        title={
+          isStealthActive
+            ? "Stealth Mode Active (Press ESC)"
+            : "Activate Stealth Mode (Press ESC)"
+        }
       >
         {isStealthActive ? (
           <EyeOff className="w-6 h-6 text-[var(--text)]" />
@@ -45,7 +49,7 @@ export function StealthMode() {
           <Eye className="w-6 h-6 text-[var(--muted)]" />
         )}
       </button>
-      
+
       {/* Stealth Mode Overlay */}
       {isStealthActive && (
         <div className="fixed inset-0 z-40 pointer-events-none">
@@ -56,18 +60,6 @@ export function StealthMode() {
           </div>
         </div>
       )}
-      
-      {/* Global Styles */}
-      <style>{`
-        .stealth-mode-active .sensitive-blur {
-          filter: blur(8px);
-          transition: filter 0.3s ease;
-        }
-        
-        .stealth-mode-active .sensitive-blur:hover {
-          filter: blur(4px);
-        }
-      `}</style>
     </>
-  )
+  );
 }

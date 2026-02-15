@@ -4,6 +4,7 @@ Installed once on the FastAPI app so route handlers never touch HTTPException.
 """
 
 import structlog
+import traceback
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
@@ -60,6 +61,14 @@ def install_error_handlers(app: FastAPI) -> None:
             message=str(exc),
             path=request.url.path,
         )
+
+        # WRITE ERROR TO FILE FOR DEBUGGING
+        with open("error_log.txt", "a") as f:
+            f.write(f"Error handling request {request.method} {request.url.path}:\n")
+            f.write(f"{str(exc)}\n")
+            f.write(traceback.format_exc())
+            f.write("-" * 50 + "\n")
+
         return JSONResponse(
             status_code=500,
             content={"detail": "Internal server error"},

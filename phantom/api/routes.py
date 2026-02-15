@@ -114,7 +114,9 @@ def create_app() -> FastAPI:
     @app.post("/api/auth/validate")
     async def validate_license(data: LicenseValidation):
         """Validate a license key."""
+        print(f"DEBUG: validating license key: {data.license_key}")  # DEBUG LOG
         if not data.license_key or len(data.license_key) < 4:
+            print("DEBUG: license key too short")
             raise UnauthorizedError("Invalid license key")
         return {
             "valid": True,
