@@ -3,58 +3,71 @@
  * Dark glassmorphism design with animated gradient and micro-interactions
  */
 
-import { useState, useEffect } from 'react'
-import { Shield, Key, ArrowRight, Sparkles, Zap, Brain, TrendingUp, Lock, CheckCircle2 } from 'lucide-react'
-import { api } from '../api/client'
+import { useState, useEffect } from "react";
+import {
+  Shield,
+  Key,
+  ArrowRight,
+  Sparkles,
+  Zap,
+  Brain,
+  TrendingUp,
+  Lock,
+  CheckCircle2,
+} from "lucide-react";
+import { api } from "../api/client";
 
 interface LoginProps {
-  onLogin: (licenseKey: string) => void
+  onLogin: (licenseKey: string) => void;
 }
 
 export function Login({ onLogin }: LoginProps) {
-  const [licenseKey, setLicenseKey] = useState('')
-  const [isValidating, setIsValidating] = useState(false)
-  const [error, setError] = useState('')
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  const [licenseKey, setLicenseKey] = useState("");
+  const [isValidating, setIsValidating] = useState(false);
+  const [error, setError] = useState("");
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   // Track mouse for gradient effect
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY })
-    }
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [])
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setIsValidating(true)
+    e.preventDefault();
+    setError("");
+    setIsValidating(true);
 
     try {
-      const data = await api.validateLicense(licenseKey)
-      localStorage.setItem('phantom_license', licenseKey)
-      localStorage.setItem('phantom_user', JSON.stringify(data.user))
-      onLogin(licenseKey)
+      const data = await api.validateLicense(licenseKey);
+      localStorage.setItem("phantom_license", licenseKey);
+      localStorage.setItem("phantom_user", JSON.stringify(data.user));
+      onLogin(licenseKey);
     } catch (err: any) {
-      setError(err.message || 'Invalid license key')
+      setError(err.message || "Invalid license key");
     } finally {
-      setIsValidating(false)
+      setIsValidating(false);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden"
+    <div
+      className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden"
       style={{
-        background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%)'
-      }}>
-
+        background:
+          "linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%)",
+      }}
+    >
       {/* Animated gradient orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className="absolute w-[600px] h-[600px] rounded-full opacity-30 blur-[120px] transition-all duration-1000 ease-out"
           style={{
-            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%)',
+            background:
+              "radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%)",
             left: mousePos.x * 0.05,
             top: mousePos.y * 0.05,
           }}
@@ -62,18 +75,20 @@ export function Login({ onLogin }: LoginProps) {
         <div
           className="absolute w-[500px] h-[500px] rounded-full opacity-25 blur-[100px] animate-pulse"
           style={{
-            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%)',
-            right: '10%',
-            bottom: '20%',
+            background:
+              "radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%)",
+            right: "10%",
+            bottom: "20%",
           }}
         />
         <div
           className="absolute w-[400px] h-[400px] rounded-full opacity-20 blur-[80px]"
           style={{
-            background: 'radial-gradient(circle, rgba(16, 185, 129, 0.4) 0%, transparent 70%)',
-            left: '5%',
-            bottom: '10%',
-            animation: 'float 8s ease-in-out infinite',
+            background:
+              "radial-gradient(circle, rgba(16, 185, 129, 0.4) 0%, transparent 70%)",
+            left: "5%",
+            bottom: "10%",
+            animation: "float 8s ease-in-out infinite",
           }}
         />
       </div>
@@ -84,7 +99,7 @@ export function Login({ onLogin }: LoginProps) {
         style={{
           backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
                            linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-          backgroundSize: '50px 50px',
+          backgroundSize: "50px 50px",
         }}
       />
 
@@ -114,12 +129,16 @@ export function Login({ onLogin }: LoginProps) {
                 <Shield className="w-6 h-6 text-violet-400" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-white">Activate License</h2>
-                <p className="text-sm text-zinc-500">Enter your key to unlock</p>
+                <h2 className="text-xl font-semibold text-white">
+                  Activate License
+                </h2>
+                <p className="text-sm text-zinc-500">
+                  Enter your key to unlock
+                </p>
               </div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-zinc-300 mb-3">
                   <Key className="w-4 h-4 text-zinc-500" />
@@ -129,10 +148,14 @@ export function Login({ onLogin }: LoginProps) {
                   <input
                     type="text"
                     value={licenseKey}
-                    onChange={(e) => setLicenseKey(e.target.value.toUpperCase())}
-                    className="w-full px-4 py-3.5 bg-zinc-800/50 border border-zinc-700/50 rounded-xl text-white placeholder-zinc-600 font-mono text-sm tracking-wider focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all"
-                    placeholder="XXXX-XXXX-XXXX-XXXX"
-                    required
+                    onChange={(e) =>
+                      setLicenseKey(e.target.value.toUpperCase())
+                    }
+                    className="w-full px-4 py-3.5 bg-zinc-800/50 border border-zinc-700/50 rounded-xl text-white placeholder-zinc-600 font-mono text-sm tracking-wider focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-all uppercase"
+                    placeholder="TEST-KEY-1234"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck="false"
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
                     <Lock className="w-4 h-4 text-zinc-600" />
@@ -140,7 +163,7 @@ export function Login({ onLogin }: LoginProps) {
                 </div>
                 <p className="flex items-center gap-1.5 text-xs text-zinc-600 mt-2">
                   <CheckCircle2 className="w-3 h-3" />
-                  256-bit encrypted • Privacy protected
+                  Any key (4+ chars) works in dev mode
                 </p>
               </div>
 
@@ -156,7 +179,8 @@ export function Login({ onLogin }: LoginProps) {
                 disabled={isValidating || licenseKey.length < 4}
                 className="w-full relative group overflow-hidden rounded-xl font-semibold text-white py-4 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
-                  background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+                  background:
+                    "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
                 }}
               >
                 {/* Shine effect */}
@@ -179,7 +203,9 @@ export function Login({ onLogin }: LoginProps) {
             </form>
 
             <div className="mt-8 pt-6 border-t border-zinc-800 text-center">
-              <p className="text-zinc-500 text-sm mb-2">Don't have a license?</p>
+              <p className="text-zinc-500 text-sm mb-2">
+                Don't have a license?
+              </p>
               <a
                 href="#"
                 className="inline-flex items-center gap-2 text-violet-400 hover:text-violet-300 font-medium text-sm transition-colors"
@@ -196,7 +222,11 @@ export function Login({ onLogin }: LoginProps) {
         <div className="mt-10 grid grid-cols-3 gap-4">
           <FeatureChip icon={Zap} label="Lightning Fast" color="violet" />
           <FeatureChip icon={Brain} label="AI Powered" color="blue" />
-          <FeatureChip icon={TrendingUp} label="Profit Tracking" color="emerald" />
+          <FeatureChip
+            icon={TrendingUp}
+            label="Profit Tracking"
+            color="emerald"
+          />
         </div>
 
         {/* Stats */}
@@ -233,20 +263,32 @@ export function Login({ onLogin }: LoginProps) {
         }
       `}</style>
     </div>
-  )
+  );
 }
 
-function FeatureChip({ icon: Icon, label, color }: { icon: any; label: string; color: 'violet' | 'blue' | 'emerald' }) {
+function FeatureChip({
+  icon: Icon,
+  label,
+  color,
+}: {
+  icon: any;
+  label: string;
+  color: "violet" | "blue" | "emerald";
+}) {
   const colors = {
-    violet: 'from-violet-500/10 to-purple-500/10 border-violet-500/20 text-violet-400',
-    blue: 'from-blue-500/10 to-cyan-500/10 border-blue-500/20 text-blue-400',
-    emerald: 'from-emerald-500/10 to-teal-500/10 border-emerald-500/20 text-emerald-400',
-  }
+    violet:
+      "from-violet-500/10 to-purple-500/10 border-violet-500/20 text-violet-400",
+    blue: "from-blue-500/10 to-cyan-500/10 border-blue-500/20 text-blue-400",
+    emerald:
+      "from-emerald-500/10 to-teal-500/10 border-emerald-500/20 text-emerald-400",
+  };
 
   return (
-    <div className={`flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br ${colors[color]} border backdrop-blur-sm hover:scale-105 transition-transform duration-300 cursor-default`}>
+    <div
+      className={`flex flex-col items-center gap-2 p-4 rounded-xl bg-gradient-to-br ${colors[color]} border backdrop-blur-sm hover:scale-105 transition-transform duration-300 cursor-default`}
+    >
       <Icon className="w-5 h-5" />
       <p className="text-xs font-medium text-zinc-400">{label}</p>
     </div>
-  )
+  );
 }
