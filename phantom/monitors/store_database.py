@@ -650,6 +650,7 @@ class StoreDatabase:
     def __init__(self):
         self.stores: Dict[str, ShopifyStore] = {}
         self._loaded = False
+        self._all_cache: Optional[List[ShopifyStore]] = None
 
     def load_builtin(self) -> int:
         """Load the built-in store database"""
@@ -657,14 +658,17 @@ class StoreDatabase:
             key = store.name.lower().replace(" ", "_")
             self.stores[key] = store
         self._loaded = True
+        self._all_cache = None  # Invalidate cache
         logger.info("Store database loaded", count=len(self.stores))
         return len(self.stores)
 
     def get_all(self) -> List[ShopifyStore]:
-        """Get all stores"""
+        """Get all stores (result is cached after first call)."""
         if not self._loaded:
             self.load_builtin()
-        return list(self.stores.values())
+        if self._all_cache is None:
+            self._all_cache = list(self.stores.values())
+        return self._all_cache
 
     def get_by_category(self, category: str) -> List[ShopifyStore]:
         """Get stores by category"""

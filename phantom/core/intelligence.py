@@ -352,11 +352,24 @@ class DeepSearch:
         Strips size/format variations and compares the core path.
         Higher = more similar (0.0 to 1.0).
         """
+        # Fast path: different domains can never be the same product image
+        domain1 = url1.split("://", 1)[-1].split("/")[0] if "://" in url1 else ""
+        domain2 = url2.split("://", 1)[-1].split("/")[0] if "://" in url2 else ""
+        if domain1 and domain2 and domain1 != domain2:
+            return 0.0
+
         path1 = self._extract_image_path(url1)
         path2 = self._extract_image_path(url2)
 
         if path1 == path2:
             return 1.0
+
+        # Fast path: paths with very different lengths can't be highly similar
+        len1, len2 = len(path1), len(path2)
+        if len1 == 0 or len2 == 0:
+            return 0.0
+        if min(len1, len2) / max(len1, len2) < (1 - self.similarity_threshold):
+            return 0.0
 
         # Check if core filename matches
         file1 = path1.split("/")[-1].split(".")[0] if "/" in path1 else path1
@@ -365,9 +378,9 @@ class DeepSearch:
         if file1 == file2:
             return 0.95
 
-        # Longest common substring ratio
+        # Longest common substring ratio — only reached for same-domain, similar-length paths
         common_len = self._lcs_length(path1, path2)
-        max_len = max(len(path1), len(path2), 1)
+        max_len = max(len1, len2, 1)
 
         return common_len / max_len
 

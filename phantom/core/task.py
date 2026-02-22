@@ -7,7 +7,7 @@ import asyncio
 import uuid
 import time
 from dataclasses import dataclass, field
-from typing import Optional, List, Dict, Any, Callable, Awaitable
+from typing import Optional, List, Dict, Callable, Awaitable
 from enum import Enum
 from datetime import datetime
 import structlog
@@ -165,6 +165,15 @@ class TaskManager:
         self._site_last_request: Dict[str, float] = {}
         self._min_site_delay: float = 0.5  # seconds between requests to same site
 
+        # Incremental counters — updated on every status transition so
+        # get_stats() never needs to scan self.tasks
+        self._count_idle: int = 0
+        self._count_success: int = 0
+        self._count_failed: int = 0
+        self._count_declined: int = 0
+        self._total_retries: int = 0
+        self._checkout_times: List[float] = []  # rolling window for avg
+
         logger.info("TaskManager initialized", max_concurrent=max_concurrent)
 
     # ------------------------------------------------------------------
@@ -189,6 +198,7 @@ class TaskManager:
     def create_task(self, config: TaskConfig, group_id: Optional[str] = None) -> Task:
         task = Task(config=config, group_id=group_id)
         self.tasks[task.id] = task
+        self._count_idle += 1
         if group_id and group_id in self.groups:
             self.groups[group_id].task_ids.append(task.id)
         return task
@@ -232,6 +242,10 @@ class TaskManager:
                     task.result = result
 
                     if result.success:
+                        if result.checkout_time:
+                            self._checkout_times.append(result.checkout_time)
+                            if len(self._checkout_times) > 500:
+                                self._checkout_times = self._checkout_times[-500:]
                         await self._set_status(
                             task,
                             TaskStatus.SUCCESS,
@@ -257,6 +271,7 @@ class TaskManager:
 
                     if should_retry:
                         task._retry_count += 1
+                        self._total_retries += 1
                         delay = self._backoff_delay(
                             task._retry_count, task.config.retry_delay
                         )
@@ -309,13 +324,37 @@ class TaskManager:
     # ------------------------------------------------------------------
 
     async def _set_status(self, task: Task, status: TaskStatus, message: str = ""):
-        """Update task status and fire callback."""
+        """Update task status, update incremental counters, and fire callback."""
+        old_status = task.status
         task.update_status(status, message)
+        self._update_counters(old_status, status)
         if self._on_status_change:
             try:
                 await self._on_status_change(task)
             except Exception:
                 pass
+
+    def _update_counters(self, old: TaskStatus, new: TaskStatus):
+        """Maintain incremental status counters on every transition."""
+        # Decrement old bucket
+        if old == TaskStatus.IDLE:
+            self._count_idle = max(0, self._count_idle - 1)
+        elif old == TaskStatus.SUCCESS:
+            self._count_success = max(0, self._count_success - 1)
+        elif old == TaskStatus.FAILED:
+            self._count_failed = max(0, self._count_failed - 1)
+        elif old == TaskStatus.DECLINED:
+            self._count_declined = max(0, self._count_declined - 1)
+
+        # Increment new bucket
+        if new == TaskStatus.IDLE:
+            self._count_idle += 1
+        elif new == TaskStatus.SUCCESS:
+            self._count_success += 1
+        elif new == TaskStatus.FAILED:
+            self._count_failed += 1
+        elif new == TaskStatus.DECLINED:
+            self._count_declined += 1
 
     async def _acquire_site_slot(self, site_url: str):
         """Per-site rate limiting to avoid triggering bot detection."""
@@ -360,13 +399,46 @@ class TaskManager:
 
     def delete_task(self, task_id: str) -> bool:
         """Remove a task from the manager. Stops it first if running."""
-        if task_id not in self.tasks:
+        task = self.tasks.get(task_id)
+        if not task:
             return False
+        # Decrement the counter for the task's current status bucket
+        self._decrement_counter(task.status)
         self.stop_task(task_id)
         self._running_tasks.pop(task_id, None)
         del self.tasks[task_id]
         logger.info("task_deleted", task_id=task_id)
         return True
+
+    def _decrement_counter(self, status: TaskStatus):
+        """Decrement the counter for a given status bucket."""
+        if status == TaskStatus.IDLE:
+            self._count_idle = max(0, self._count_idle - 1)
+        elif status == TaskStatus.SUCCESS:
+            self._count_success = max(0, self._count_success - 1)
+        elif status == TaskStatus.FAILED:
+            self._count_failed = max(0, self._count_failed - 1)
+        elif status == TaskStatus.DECLINED:
+            self._count_declined = max(0, self._count_declined - 1)
+
+    def get_stats(self) -> dict:
+        """Return task statistics using incremental counters — O(1) read path."""
+        avg_checkout_time = None
+        if self._checkout_times:
+            avg_checkout_time = round(
+                sum(self._checkout_times) / len(self._checkout_times), 2
+            )
+
+        return {
+            "total": len(self.tasks),
+            "running": len(self._running_tasks),
+            "idle": self._count_idle,
+            "success": self._count_success,
+            "failed": self._count_failed,
+            "declined": self._count_declined,
+            "avg_checkout_time": avg_checkout_time,
+            "total_retries": self._total_retries,
+        }
 
     async def start_all(self) -> int:
         started = 0
@@ -381,35 +453,3 @@ class TaskManager:
             if self.stop_task(task_id):
                 stopped += 1
         return stopped
-
-    def get_stats(self) -> Dict[str, Any]:
-        completed = [t for t in self.tasks.values() if t.completed_at]
-
-        avg_checkout_time = None
-        if completed:
-            times = [
-                t.result.checkout_time
-                for t in completed
-                if t.result and t.result.checkout_time
-            ]
-            if times:
-                avg_checkout_time = sum(times) / len(times)
-
-        return {
-            "total": len(self.tasks),
-            "running": len(self._running_tasks),
-            "idle": sum(1 for t in self.tasks.values() if t.status == TaskStatus.IDLE),
-            "success": sum(
-                1 for t in self.tasks.values() if t.status == TaskStatus.SUCCESS
-            ),
-            "failed": sum(
-                1 for t in self.tasks.values() if t.status == TaskStatus.FAILED
-            ),
-            "declined": sum(
-                1 for t in self.tasks.values() if t.status == TaskStatus.DECLINED
-            ),
-            "avg_checkout_time": round(avg_checkout_time, 2)
-            if avg_checkout_time
-            else None,
-            "total_retries": sum(t._retry_count for t in self.tasks.values()),
-        }

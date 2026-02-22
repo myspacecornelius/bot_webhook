@@ -246,7 +246,7 @@ class AutoTaskSpawner:
             delete_after_stop=True,
         )
 
-        # Spawn N tasks
+        # Spawn N tasks — create all first, then start concurrently
         for i in range(config.task_count):
             task_config = TaskConfig(
                 site_type=config.site_type,
@@ -262,8 +262,9 @@ class AutoTaskSpawner:
             task = self.task_manager.create_task(task_config, group_id=group.id)
             record.task_ids.append(task.id)
 
-            # Start task immediately
-            await self.task_manager.start_task(task.id)
+        await asyncio.gather(
+            *[self.task_manager.start_task(tid) for tid in record.task_ids]
+        )
 
         # Set stop timer
         if config.stop_after_seconds > 0:
@@ -309,7 +310,7 @@ class AutoTaskSpawner:
             delete_after_stop=self.config.delete_after_stop,
         )
 
-        # Spawn N tasks
+        # Spawn N tasks — create all first, then start concurrently
         for i in range(self.config.task_count):
             mode = self._resolve_mode(i)
 
@@ -333,8 +334,9 @@ class AutoTaskSpawner:
             task = self.task_manager.create_task(task_config, group_id=group.id)
             record.task_ids.append(task.id)
 
-            # Start immediately
-            await self.task_manager.start_task(task.id)
+        await asyncio.gather(
+            *[self.task_manager.start_task(tid) for tid in record.task_ids]
+        )
 
         # Set stop timer
         if self.config.stop_after_seconds > 0:

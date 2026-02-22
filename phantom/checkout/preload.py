@@ -18,7 +18,7 @@ Key Valor settings replicated:
 import asyncio
 import time
 import re
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
@@ -122,11 +122,16 @@ class PreloadEngine:
         "lanyard",
     ]
 
+    # TTL for products.json cache (seconds) — cheap accessories rarely change
+    _PRECART_CACHE_TTL: float = 90.0
+
     def __init__(self, max_sessions: int = 20):
         self.sessions: Dict[str, PreloadedSession] = {}
         self._session_factory = SessionFactory()
         self._keepalive_tasks: Dict[str, asyncio.Task] = {}
         self._max_sessions = max_sessions
+        # Per-domain cache: base_url → (fetched_at, products_list)
+        self._precart_cache: Dict[str, Tuple[float, List]] = {}
         logger.info("PreloadEngine initialized", max_sessions=max_sessions)
 
     # ------------------------------------------------------------------
@@ -372,18 +377,26 @@ class PreloadEngine:
 
         Searches products.json for accessories/small items that are
         likely always in stock. Returns (variant_id, product_name).
+        Results are cached per domain for _PRECART_CACHE_TTL seconds so
+        concurrent session creations for the same store share one fetch.
         """
         try:
-            response = await session.get(
-                f"{base_url}/products.json?limit=250",
-                headers={"Accept": "application/json"},
-            )
+            cached = self._precart_cache.get(base_url)
+            if cached and (time.time() - cached[0]) < self._PRECART_CACHE_TTL:
+                products = cached[1]
+                logger.debug("Precart cache hit", site=base_url)
+            else:
+                response = await session.get(
+                    f"{base_url}/products.json?limit=250",
+                    headers={"Accept": "application/json"},
+                )
 
-            if response.status_code != 200:
-                return None, None
+                if response.status_code != 200:
+                    return None, None
 
-            data = response.json()
-            products = data.get("products", [])
+                data = response.json()
+                products = data.get("products", [])
+                self._precart_cache[base_url] = (time.time(), products)
 
             # Sort by price ascending — we want the cheapest available item
             candidates = []
