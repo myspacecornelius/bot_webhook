@@ -44,6 +44,7 @@ class TaskMode(Enum):
     SAFE = "safe"
     PRELOAD = "preload"
     REQUEST = "request"
+    FLOW = "flow"  # Nike SNKRS API checkout
 
 
 @dataclass
